@@ -2,37 +2,37 @@
    <div class="h-full px-3 py-4 overflow-y-auto nav-bg flex flex-col justify-between">
       <ul class="space-y-2 font-medium">
          <li>
-            <a href="#" class="flex items-center text-gray-900 rounded-lg dark:text-white group">
+            <a href="#" class="flex items-center text-gray-900 rounded-lg text-white group">
                <img src="its_logo.png" style="width:60%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
             </a>
-            <p class="text-center text-gray-900 rounded-lg dark:text-white group text-xl mb-20 text-sm font-bold">IT Squarehub</p>
+            <p class="text-center text-gray-900 rounded-lg text-white group text-xl mb-20 text-sm font-bold">IT Squarehub</p>
          </li>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group text-2xl  mb-5">
+            <a class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group text-2xl  mb-5" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                <i class="fa-solid fa-house"></i>
                <span class="flex-1 ms-3 whitespace-nowrap pl-2">Home</span>
             </a>
          </li>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group mb-5 text-2xl">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group mb-5 text-2xl" routerLink="/certificates" routerLinkActive="active">
                <i class="fa-solid fa-certificate"></i>
                <span class="flex-1 ms-3 whitespace-nowrap pl-2">Certificates</span>
             </a>
          </li>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group mb-5 text-2xl">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group mb-5 text-2xl">
               <i class="fa-solid fa-hourglass-half"></i>
                <span class="flex-1 ms-3 whitespace-nowrap pl-4">Pending</span>
             </a>
          </li>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group mb-5 text-2xl">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group mb-5 text-2xl">
               <i class="fa-solid fa-square-check"></i>
                <span class="flex-1 ms-3 whitespace-nowrap pl-3">Approved</span>
             </a>
          </li>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group mb-5 text-2xl">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group mb-5 text-2xl">
               <i class="fa-solid fa-file-export"></i>
                <span class="flex-1 ms-3 whitespace-nowrap pl-1">Download</span>
             </a>
@@ -40,13 +40,13 @@
         </ul>
         <ul>
          <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group ">
               <i class="fa-solid fa-user"></i>
                <span class="flex-1 ms-3 whitespace-nowrap font-bold pl-1">Account Settings</span>
             </a>
          </li>
           <li>
-            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ">
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg text-white hover:bg-gray-100 hover:bg-gray-700 group ">
                <i class="fa-solid fa-right-from-bracket"></i>
                <span class="flex-1 ms-3 whitespace-nowrap font-bold">Log Out</span>
             </a>
@@ -56,5 +56,6 @@
 </aside>
 
 <div class="p-4 sm:ml-64">
+
   <router-outlet></router-outlet>
 </div>
