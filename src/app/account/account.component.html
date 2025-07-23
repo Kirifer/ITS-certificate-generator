@@ -1,0 +1,35 @@
+<div class="account-settings-container">
+  <h2>Account Settings</h2>
+
+  <form [formGroup]="accountForm" (ngSubmit)="onSave()">
+    <div class="form-group">
+      <label><i class="fa fa-user"></i> Name:</label>
+      <input type="text" formControlName="name" />
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa fa-envelope"></i> Email:</label>
+      <input type="email" formControlName="email" />
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa fa-gear"></i> Select Role:</label>
+      <select formControlName="role">
+        <option value="">-- Select Role --</option>
+        <option value="admin">Admin</option>
+        <option value="user">User</option>
+        <option value="moderator">Moderator</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa fa-lock"></i> Password:</label>
+      <input type="password" formControlName="password" />
+    </div>
+
+    <div class="button-group">
+      <button type="button" (click)="toggleEdit()">Edit </button>
+      <button type="submit" [disabled]="!isEditable || accountForm.invalid">Save </button>
+    </div>
+  </form>
+</div>

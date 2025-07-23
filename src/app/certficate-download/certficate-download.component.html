@@ -1,0 +1,33 @@
+<main class="main-content p-6 w-full bg-gray-100 min-h-screen">
+  <h2 class="text-center text-xl sm:text-2xl font-semibold text-blue-900 mb-6 tracking-wide uppercase">
+    List of Approved Certificates
+  </h2>
+
+  <div class="overflow-x-auto rounded-lg shadow-md">
+    <table class="min-w-full bg-white rounded-lg text-gray-800 text-sm">
+      <thead class="bg-blue-200 text-blue-900">
+        <tr>
+          <th class="py-3 px-4 text-left font-semibold">Name</th>
+          <th class="py-3 px-4 text-left font-semibold">Certificate</th>
+          <th class="py-3 px-4 text-left font-semibold">Status</th>
+          <th class="py-3 px-4 text-center font-semibold w-24">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cert of certificates" class="border-b hover:bg-blue-50 transition">
+          <td class="py-3 px-4">{{ cert.name }}</td>
+          <td class="py-3 px-4">{{ cert.certificate }}</td>
+          <td class="py-3 px-4">{{ cert.status }}</td>
+          <td class="py-3 px-4 text-center">
+            <button 
+              title="Download Certificate"
+              (click)="downloadCertificate(cert)"
+              class="bg-purple-600 hover:bg-purple-700 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-md transition">
+              <i class="fa fa-download text-sm"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>

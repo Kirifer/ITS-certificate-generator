@@ -10,3 +10,10 @@
     position: relative;
     transition: background-position 0.1s ease-out;
 }
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}

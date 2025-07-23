@@ -1,6 +1,6 @@
 /* Background and Container */
 .login-bg {
-  height: 101vh; 
+ height: 101vh; 
   width: 102%; 
   background-image: url("/cert_bg.png"); 
   background-size: cover;
@@ -8,18 +8,37 @@
   background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   margin-top: -20px;
   margin-bottom: -1100px;
   margin-left: -20px;
   margin-right: -120px;
 }
 
-.logo {
-  width: 200px;
-  margin: 0 auto; 
+/* Row and Column Layout */
+.row {
+  display: flex;
+  flex: 1; 
+  width: 60%;
+  margin: 0 auto;
+}
 
+.column {
+  flex: 1; 
+  padding: 20px; 
+  
+}
+
+/* Logo and Header */
+.header-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 300px;
+  margin-bottom: 20px; 
 }
 
 .header {
@@ -27,51 +46,59 @@
   color: #3be2ff;
   font-weight: bold;
   font-size: 30px;
-  margin: 0; 
-  margin-bottom: -7em;
 }
 
 /* Login Container */
 .login-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  height: 100%; 
- 
 }
 
-/* Login Box */
+/* Register Box */
 .login-box {
-  height: 430px;
   background-color: rgba(4, 51, 105, 0.9);
   opacity: 0.9;
   padding: 2rem;
   border-radius: 40px;
-  width: 130%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 600px;
   color: white;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-  
 }
 
-/* Input Styles */
+/* Title */
+.login-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 10px 0 40px; 
+}
+
+/* Input Field with Icon */
 .input-with-icon {
   position: relative;
   width: 100%;
   margin-bottom: 1rem;
 }
 
-.input-with-icon input {
+.input-with-icon input,
+.input-with-icon select {
   width: 100%;
-  padding: 0.6rem 2.5rem 0.6rem 1rem; 
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
   border-radius: 25px;
   border: none;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   font-size: 1rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  appearance: none;
 }
 
+.input-with-icon select {
+  background-color: white;
+  color: black;
+}
+
+/* Icon Placement */
 .input-with-icon .icon {
   position: absolute;
   right: 15px;
@@ -81,29 +108,7 @@
   font-size: 1rem;
 }
 
-/* Title Styles */
-.login-title {
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 10px 0 40px; 
-}
-
-/* Form Options */
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
-
-.forgot {
-  color: #00d4ff;
-  text-decoration: none;
-}
-
-/* Button Styles */
+/* Submit Button */
 .login-btn {
   background-color: #f1c40f;
   border: none;
@@ -112,14 +117,13 @@
   width: 100%;
   margin-top: 1rem;
   font-weight: bold;
-  cursor: pointer;
 }
 
 .login-btn:hover {
   background-color: #e0b90e;
 }
 
-/* Register Text */
+/* Register Footer Text */
 .register-text {
   text-align: center;
   margin-top: 1rem;
@@ -145,10 +149,12 @@
   display: flex;
   justify-content: center;
 }
-.footer-logo{
+
+.footer-logo {
   width: 40px;
   display: flex;
 }
+
 .footer-info {
   display: flex;
   align-items: center;     
@@ -157,8 +163,6 @@
   width: 100%;
   margin: 0 auto;
   margin-top: 20px;
-  text-align: center;
-  margin-top: -350px;
 }
 
 .footer-bottom {
@@ -173,32 +177,4 @@
   line-height: 1.5;
   white-space: nowrap; 
   overflow: hidden; 
-  margin-top: -150px;
-}
-
-
-/* Sidebar Styles */
-#default-sidebar {
-  display: none;
-  background-color: black; 
-}
-
-#default-sidebar.ng-enter {
-  display: block; 
-}
-
-#default-sidebar.ng-leave {
-  display: none; 
-}
-
-.p-4 {
-  transition: margin-left 0.3s ease; 
-}
-
-.mat-sidenav-container {
-  height: 100vh; 
-}
-
-.mat-sidenav-content {
-  height: 100%; 
 }

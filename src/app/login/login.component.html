@@ -1,1 +1,62 @@
-<p>login works!</p>
+<div class="login-bg">
+  <img src="its_logo.png" alt="Logo" class="logo" />
+
+  <div class="header">
+    <p>IT SQUAREHUB</p>
+  </div>
+
+  <div class="login-container">
+    <div class="login-box">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-box">
+        <h3 class="login-title">LOGIN</h3>
+
+        <div class="input-with-icon">
+          <input class="text-black" type="email" formControlName="email" placeholder="Email" aria-label="Email"/>
+          <span class="icon"><i class="fa-solid fa-user"></i></span>
+          <div *ngIf="email?.invalid && email?.touched" class="error">
+            <small *ngIf="email?.errors?.['required']">Email is required.</small>
+            <small *ngIf="email?.errors?.['email']">Invalid email format.</small>
+          </div>
+        </div>
+
+        <div class="input-with-icon">
+          <input class="text-black" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" aria-label="Password"/>
+          <span class="icon" (click)="togglePassword()">
+            <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+          <div *ngIf="password?.invalid && password?.touched" class="error">
+            <small *ngIf="password?.errors?.['required']">Password is required.</small>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label>
+            <input type="checkbox" formControlName="remember" />
+            <span class="remember-text">Remember me</span>
+          </label>
+          <a href="#" class="forgot">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-btn" [disabled]="loginForm.invalid">Login</button>
+
+        <p class="register-text transition cursor-pointer">
+          Don't have an account? <a (click)="goToRegister()">Register</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-info">
+        <img src="its_logo.png" class="footer-logo" />
+        <p>IT SQUAREHUB</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-text">
+        We provide world-class services at a fraction of a cost without sacrificing quality.
+      </p>
+    </div>
+  </footer>
+</div>

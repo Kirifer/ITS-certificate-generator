@@ -1,0 +1,75 @@
+.account-settings-container {
+  background-color: #e5e5e5;
+  padding: 2rem;
+  width: 400px;
+  margin: 50px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #004a99;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  color: #004a99;
+  margin-bottom: 0.3rem;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 2px solid #004a99;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  border-color: #0077cc;
+  box-shadow: 0 0 5px rgba(0, 119, 204, 0.3);
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+button {
+  padding: 0.6rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="button"] {
+  background-color: #004a99;
+  color: white;
+}
+
+button[type="submit"] {
+  background-color: #004a99;
+  color: white;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
