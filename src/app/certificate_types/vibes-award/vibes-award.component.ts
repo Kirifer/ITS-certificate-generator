@@ -6,18 +6,16 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-emp-year',
+  selector: 'app-vibes-award',
   standalone: true,
-  imports: [
-    CommonModule,
+  imports: [CommonModule,
     ReactiveFormsModule,
-    FormsModule
-  ],
-  templateUrl: './emp-year.component.html',
-  styleUrls: ['./emp-year.component.css']
+    FormsModule],
+  templateUrl: './vibes-award.component.html',
+  styleUrl: './vibes-award.component.css'
 })
-export class EmpYearComponent {
-  certificateForm: FormGroup;
+export class VibesAwardComponent {
+ certificateForm: FormGroup;
   popupData: {name: string, email: string, date: string } | null = null;
   currentYear = new Date().getFullYear();
   certificateBgImage = '/certificate-bg.png'; 

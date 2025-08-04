@@ -2,7 +2,7 @@
   <!-- Left Panel - Form -->
   <div class="form-panel">
     <h2>Certificate Details</h2>
-    <form [formGroup]="certificateForm" (ngSubmit)="requestApproval()">
+    <form [formGroup]="awardForm" (ngSubmit)="requestApproval()">
       <div class="form-group">
         <label>Recipient Name*</label>
         <input type="text" formControlName="recipientName">
@@ -95,26 +95,26 @@
         </div>
         <h1>CERTIFICATE OF APPRECIATION</h1>
         <p style="margin-top: -155px ; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-        <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
-        <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
+        <h2>{{ awardForm.value.recipientName || 'Recipient Name' }}</h2>
+        <h3>ITS PEERLESS AWARDEE</h3>
 
         <div class="certificate-text">
-          <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
-          <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          <p>In recognition of her exceptional contributions to the success and growth of IT Squarehub, demonstrated through outstanding performance, commitment to excellence, and a strong work ethic, the ITS Peerless Award honors her impact,
+             professionalism, and continued efforts in advancing the company’s mission.</p>
         </div>
 
-        <p class="issuance" style="margin-top: -90px;">Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span></p>
+        <p class="issuance" style="margin-top: -90px;">Given on this day of <span class="iss-date">{{ (awardForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span></p>
 
         <div class="signatures">
           <div>
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+            <p class="sig-names">{{ awardForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+            <p class="sig-roles">{{ awardForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
           </div>
           <div>
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+            <p class="sig-names">{{ awardForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+            <p class="sig-roles">{{ awardForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@
         </div>
         <h1>CERTIFICATE OF APPRECIATION</h1>
         <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-        <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
+        <h2>{{ awardForm.value.recipientName || 'Recipient Name' }}</h2>
         <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
 
         <div class="certificate-text">
@@ -143,20 +143,20 @@
         </div>
 
         <p class="issuance" style="margin-top: -90px;">
-          Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
+          Given on this day of <span class="iss-date">{{ (awardForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
           at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
         </p>
 
         <div class="signatures">
           <div>
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+            <p class="sig-names">{{ awardForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+            <p class="sig-roles">{{ awardForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
           </div>
           <div>
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+            <p class="sig-names">{{ awardForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+            <p class="sig-roles">{{ awardForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
           </div>
         </div>
       </div>

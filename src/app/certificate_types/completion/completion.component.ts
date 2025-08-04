@@ -2,32 +2,27 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-emp-year',
+  selector: 'app-completion',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule
-  ],
-  templateUrl: './emp-year.component.html',
-  styleUrls: ['./emp-year.component.css']
+  imports: [CommonModule, ReactiveFormsModule,FormsModule],
+  templateUrl: './completion.component.html',
+  styleUrl: './completion.component.css'
 })
-export class EmpYearComponent {
+export class CompletionComponent {
+
   certificateForm: FormGroup;
-  popupData: {name: string, email: string, date: string } | null = null;
   currentYear = new Date().getFullYear();
-  certificateBgImage = '/certificate-bg.png'; 
+  certificateBgImage = '/completion.png';
+
   showCertificatePreview = false;
   isModalOpen = false;
 
   constructor(private fb: FormBuilder, private router: Router) {
     this.certificateForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
-       email: ['', [Validators.required, Validators.email]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],
@@ -39,7 +34,7 @@ export class EmpYearComponent {
   get f() {
     return this.certificateForm.controls;
   }
-  
+
   requestApproval() {
     if (this.certificateForm.invalid) {
       this.certificateForm.markAllAsTouched();
@@ -52,14 +47,6 @@ export class EmpYearComponent {
     this.router.navigate(['/certificates']);
   }
 
-  openCertificatePreview() {
-    this.showCertificatePreview = true;
-  }
-
-  closeCertificatePreview() {
-    this.showCertificatePreview = false;
-  }
-
   openModal() {
     this.isModalOpen = true;
   }
@@ -70,11 +57,16 @@ export class EmpYearComponent {
 
   submitForm(form: any) {
     if (form.valid) {
-      const { name, email } = form.value;
-
-      console.log('Send to Outlook:', name, email);
-
+      console.log('Request submitted:', form.value);
       this.closeModal();
     }
+  }
+
+  openCertificatePreview() {
+    this.showCertificatePreview = true;
+  }
+
+  closeCertificatePreview() {
+    this.showCertificatePreview = false;
   }
 }

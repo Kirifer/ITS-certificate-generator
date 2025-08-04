@@ -169,7 +169,7 @@
   font-variation-settings:"wdth" 100;
   margin-top: -80px;
   margin-bottom: -50px;
-  color: #0355a1;
+  color: #7e48c5;
 }
 
 .issuance{
@@ -178,7 +178,7 @@
 }
 
 .iss-date{
-  color: #005bb0;
+  color: #7e48c5;
 }
 
 .certificate h3 {
@@ -189,7 +189,7 @@
   font-weight: bold;
   font-style: normal;
   font-variation-settings:"wdth" 100;
-  background-color: #7e48c5;
+  background-color: #7125d3;
   color: #fff;
   width: 55%;
   margin: 0 auto;

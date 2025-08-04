@@ -4,7 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { NgIf, NgClass } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms'; // ✅ ADD THIS LINE
+import { ReactiveFormsModule } from '@angular/forms'; 
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,7 @@ import { ReactiveFormsModule } from '@angular/forms'; // ✅ ADD THIS LINE
     RouterModule,
     NgIf,
     NgClass,
-    ReactiveFormsModule, // ✅ ADD THIS LINE
+    ReactiveFormsModule, 
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

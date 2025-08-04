@@ -6,17 +6,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-emp-year',
+  selector: 'app-initiative',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule
-  ],
-  templateUrl: './emp-year.component.html',
-  styleUrls: ['./emp-year.component.css']
+  imports: [ CommonModule,ReactiveFormsModule,FormsModule],
+  templateUrl: './initiative.component.html',
+  styleUrl: './initiative.component.css'
 })
-export class EmpYearComponent {
+export class InitiativeComponent {
   certificateForm: FormGroup;
   popupData: {name: string, email: string, date: string } | null = null;
   currentYear = new Date().getFullYear();
