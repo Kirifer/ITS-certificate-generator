@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class EmpYearComponent {
   certificateForm: FormGroup;
-  popupData: {name: string, email: string, date: string } | null = null;
+  popupData: { name: string, email: string, date: string } | null = null;
   currentYear = new Date().getFullYear();
   certificateBgImage = '/certificate-bg.png'; 
   showCertificatePreview = false;
@@ -27,19 +27,40 @@ export class EmpYearComponent {
   constructor(private fb: FormBuilder, private router: Router) {
     this.certificateForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
-       email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
+      numberOfSignatories: ['1', Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],
-      signatory2Name: ['', [Validators.required]],
-      signatory2Role: ['', [Validators.required]]
+      signatory2Name: [''],
+      signatory2Role: ['']
     });
+    
+    this.updateSignatoryValidators(1);
   }
 
   get f() {
     return this.certificateForm.controls;
   }
   
+  onSignatoryCountChange() {
+    const count = this.certificateForm.value.numberOfSignatories;
+    this.updateSignatoryValidators(parseInt(count, 10)); 
+  }
+  
+  updateSignatoryValidators(count: number) {
+    if (count === 1) {
+      this.certificateForm.get('signatory2Name')?.clearValidators();
+      this.certificateForm.get('signatory2Role')?.clearValidators();
+    } else {
+      this.certificateForm.get('signatory2Name')?.setValidators([Validators.required]);
+      this.certificateForm.get('signatory2Role')?.setValidators([Validators.required]);
+    }
+    
+    this.certificateForm.get('signatory2Name')?.updateValueAndValidity();
+    this.certificateForm.get('signatory2Role')?.updateValueAndValidity();
+  }
+
   requestApproval() {
     if (this.certificateForm.invalid) {
       this.certificateForm.markAllAsTouched();
@@ -53,15 +74,19 @@ export class EmpYearComponent {
   }
 
   openCertificatePreview() {
-    this.showCertificatePreview = true;
-  }
+  this.showCertificatePreview = true;
+}
 
   closeCertificatePreview() {
     this.showCertificatePreview = false;
   }
 
   openModal() {
-    this.isModalOpen = true;
+    if (this.certificateForm.valid) {
+      this.isModalOpen = true;
+    } else {
+      this.certificateForm.markAllAsTouched();
+    }
   }
 
   closeModal() {
@@ -71,9 +96,7 @@ export class EmpYearComponent {
   submitForm(form: any) {
     if (form.valid) {
       const { name, email } = form.value;
-
       console.log('Send to Outlook:', name, email);
-
       this.closeModal();
     }
   }

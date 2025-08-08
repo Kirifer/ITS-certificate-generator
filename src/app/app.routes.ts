@@ -14,6 +14,8 @@ import { InitiativeComponent } from './certificate_types/initiative/initiative.c
 import { LeadershipComponent } from './certificate_types/leadership/leadership.component';
 import { OutstandingComponent } from './certificate_types/outstanding/outstanding.component';
 import { CompletionComponent } from './certificate_types/completion/completion.component';
+import { ImportComponent } from './certificate_types/import/import.component';
+import { GuestSpeakComponent } from './certificate_types/guest-speak/guest-speak.component';
 
 export const routes: Routes = [
     { path: 'certificates', component: CertificateComponent },
@@ -35,5 +37,8 @@ export const routes: Routes = [
     { path: 'initiative', component: InitiativeComponent},
     { path: 'leadership', component: LeadershipComponent},
     { path: 'outstanding', component: OutstandingComponent},
-    { path: 'completion', component: CompletionComponent }
+    { path: 'completion', component: CompletionComponent },
+    { path: 'import', component: ImportComponent },
+    { path: 'guest-speak', component: GuestSpeakComponent },
+
 ];

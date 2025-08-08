@@ -19,10 +19,9 @@
           <td class="py-3 px-4">{{ cert.certificate }}</td>
           <td class="py-3 px-4">{{ cert.status }}</td>
           <td class="py-3 px-4 text-center">
-            <button 
-              title="Download Certificate"
-              (click)="downloadCertificate(cert)"
-              class="bg-purple-600 hover:bg-purple-700 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-md transition">
+            <button title="Download Certificate"
+            (click)="openModal(cert)"
+            class="bg-purple-600 hover:bg-purple-700 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-md transition">
               <i class="fa fa-download text-sm"></i>
             </button>
           </td>
@@ -30,4 +29,28 @@
       </tbody>
     </table>
   </div>
+
+  <!-- download icon output -->
+  <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-[1200px] max-h-[90vh] overflow-y-auto relative">
+
+      <button class="absolute top-3 right-3 text-gray-500 hover:text-black" (click)="closeModal()">
+        &times;
+      </button>
+
+      <!-- certi preview -->
+      <div class="mb-4">
+        <div class="flex justify-center">
+          <p class="text-3xl font-extrabold mb-8">CERTIFICATE PREVIEW</p>
+        </div>
+        <img src="/certificate-bg.png" alt="Temporary Preview" class="w-full rounded" />
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <button (click)="downloadSelectedCert()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+          Download
+        </button>
+      </div>
+  </div>
+</div>
 </main>

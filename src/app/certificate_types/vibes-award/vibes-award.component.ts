@@ -27,11 +27,13 @@ export class VibesAwardComponent {
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
        email: ['', [Validators.required, Validators.email]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
+      numberOfSignatories: ['1', Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],
-      signatory2Name: ['', [Validators.required]],
-      signatory2Role: ['', [Validators.required]]
+      signatory2Name: [''],
+      signatory2Role: ['']
     });
+    this.updateSignatoryValidators(1);
   }
 
   get f() {
@@ -48,6 +50,24 @@ export class VibesAwardComponent {
 
   goBack() {
     this.router.navigate(['/certificates']);
+  }
+
+  onSignatoryCountChange() {
+    const count = this.certificateForm.value.numberOfSignatories;
+    this.updateSignatoryValidators(parseInt(count, 10)); 
+  }
+  
+  updateSignatoryValidators(count: number) {
+    if (count === 1) {
+      this.certificateForm.get('signatory2Name')?.clearValidators();
+      this.certificateForm.get('signatory2Role')?.clearValidators();
+    } else {
+      this.certificateForm.get('signatory2Name')?.setValidators([Validators.required]);
+      this.certificateForm.get('signatory2Role')?.setValidators([Validators.required]);
+    }
+    
+    this.certificateForm.get('signatory2Name')?.updateValueAndValidity();
+    this.certificateForm.get('signatory2Role')?.updateValueAndValidity();
   }
 
   openCertificatePreview() {

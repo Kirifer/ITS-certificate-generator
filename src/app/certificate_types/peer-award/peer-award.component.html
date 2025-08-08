@@ -20,6 +20,15 @@
       </div>
 
       <div class="form-group">
+        <label>Number of Signatories*</label>
+        <select formControlName="numberOfSignatories" (change)="onSignatoryCountChange()">
+          <option value="1">1 Signatory</option>
+          <option value="2">2 Signatories</option>
+        </select>
+      </div>
+
+      <!-- Signatory 1 -->
+      <div class="form-group">
         <label>Signatory 1 Name*</label>
         <input type="text" formControlName="signatory1Name">
         <div *ngIf="f['signatory1Name'].invalid && f['signatory1Name'].touched" class="error">
@@ -35,7 +44,8 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- Signatory 2 -->
+      <div class="form-group" *ngIf="awardForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Name*</label>
         <input type="text" formControlName="signatory2Name">
         <div *ngIf="f['signatory2Name'].invalid && f['signatory2Name'].touched" class="error">
@@ -43,7 +53,7 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" *ngIf="awardForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Role*</label>
         <input type="text" formControlName="signatory2Role">
         <div *ngIf="f['signatory2Role'].invalid && f['signatory2Role'].touched" class="error">
@@ -135,7 +145,7 @@
         <h1>CERTIFICATE OF APPRECIATION</h1>
         <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
         <h2>{{ awardForm.value.recipientName || 'Recipient Name' }}</h2>
-        <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
+        <h3>ITS PEERLESS AWARDEE</h3>
 
         <div class="certificate-text">
           <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>

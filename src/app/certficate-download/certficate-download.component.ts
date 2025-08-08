@@ -10,6 +10,30 @@ import { CommonModule } from '@angular/common';
   styleUrl:'./certficate-download.component.css'
 })
 export class CertficateDownloadComponent {
+  showModal = false;
+  selectedCert: any;
+
+  openModal(cert: any) {
+    this.selectedCert = cert;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedCert = null;
+  }
+
+  downloadSelectedCert() {
+    if (!this.selectedCert || !this.selectedCert.downloadUrl) return;
+
+    const link = document.createElement('a');
+    link.href = this.selectedCert.downloadUrl;
+    link.download = 'certificate.pdf'; // Change if needed
+    link.click();
+
+    this.closeModal();
+  }
+
 certificates = [
     {
       name: 'John Doe',

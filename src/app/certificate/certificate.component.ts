@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-
+import { RouterModule } from '@angular/router'; 
 @Component({
   selector: 'app-certificate',
   standalone: true,
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './certificate.component.html',
   styleUrl: './certificate.component.css'
 })

@@ -30,13 +30,32 @@ export class PeerAwardComponent {
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],
-      signatory2Name: ['', [Validators.required]],
-      signatory2Role: ['', [Validators.required]]
+      signatory2Name: [''],
+      signatory2Role: ['']
     });
+    this.updateSignatoryValidators
   }
 
   get f() {
     return this.awardForm.controls;
+  }
+  
+  onSignatoryCountChange() {
+    const count = this.awardForm.value.numberOfSignatories;
+    this.updateSignatoryValidators(parseInt(count, 10)); 
+  }
+  
+  updateSignatoryValidators(count: number) {
+    if (count === 1) {
+      this.awardForm.get('signatory2Name')?.clearValidators();
+      this.awardForm.get('signatory2Role')?.clearValidators();
+    } else {
+      this.awardForm.get('signatory2Name')?.setValidators([Validators.required]);
+      this.awardForm.get('signatory2Role')?.setValidators([Validators.required]);
+    }
+    
+    this.awardForm.get('signatory2Name')?.updateValueAndValidity();
+    this.awardForm.get('signatory2Role')?.updateValueAndValidity();
   }
 
   requestApproval() {
@@ -52,15 +71,19 @@ export class PeerAwardComponent {
   }
 
   openCertificatePreview() {
-    this.showCertificatePreview = true;
-  }
+  this.showCertificatePreview = true;
+}
 
   closeCertificatePreview() {
     this.showCertificatePreview = false;
   }
 
   openModal() {
-    this.isModalOpen = true;
+    if (this.awardForm.valid) {
+      this.isModalOpen = true;
+    } else {
+      this.awardForm.markAllAsTouched();
+    }
   }
 
   closeModal() {
@@ -70,9 +93,7 @@ export class PeerAwardComponent {
   submitForm(form: any) {
     if (form.valid) {
       const { name, email } = form.value;
-
       console.log('Send to Outlook:', name, email);
-
       this.closeModal();
     }
   }

@@ -39,7 +39,7 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #e2e8f0;
@@ -50,7 +50,8 @@
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #4299e1;
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
@@ -106,6 +107,7 @@
   cursor: not-allowed;
 }
 
+
 /* Certificate Preview Styles */
 .preview-panel {
   flex: 1; 
@@ -151,24 +153,25 @@
   margin-top: 100px;
 }
 .certificate h1 {
-  margin-top: -100px;
+  margin-top: -150px;
   font-size: 40px;
   font-family: "Noto Serif", serif;
   font-optical-sizing: auto;
   font-weight: bold;
   font-style: normal;
   font-variation-settings:"wdth" 100;
+  
 }
 
 .certificate h2 {
-  font-size: 35px;
+  font-size: 45px;
   font-family: "Noto Serif", serif;
   font-optical-sizing: auto;
   font-weight: bold;
   font-style: normal;
   font-variation-settings:"wdth" 100;
-  margin-top: -80px;
-  margin-bottom: -50px;
+  margin-top: -90px;
+  margin-bottom: -120px;
   color: #0355a1;
 }
 
@@ -181,32 +184,51 @@
   color: #005bb0;
 }
 
-.certificate h3 {
+.color-box {
+  padding: 1rem;
+  color: #000;
+  border-radius: 5px;
+  margin-top: 1rem;
+  transition: background 0.3s ease;
   font-size: 20px;
-  margin-bottom: 30px;
   font-family: "Noto Serif", serif;
   font-optical-sizing: auto;
   font-weight: bold;
   font-style: normal;
   font-variation-settings:"wdth" 100;
-  background-color: #7e48c5;
-  color: #fff;
   width: 55%;
   margin: 0 auto;
-  margin-top: -100px;
   padding-top: 10px;
   padding-bottom: 10px;
   border-radius: 20px;
 }
+.text-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.text-color-picker {
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  border: 4px 
+}
+
 
 .certificate-text {
-  margin-top: -140px;
   line-height: 1.6;
   font-family: "Lato", sans-serif;
   font-style: normal;
   font-weight: bold;
   margin-bottom: -60px;
-  text-align: center;}
+  width: 80%;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  margin-top: -100px;
+  margin-bottom: -20px;
+}
 
 .signatures {
 
@@ -244,6 +266,17 @@
 
 .btn-req{
   background-color: #3BE2FF;
+}
+.upload-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.preview img {
+  width: 400px;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 /* Responsive adjustments */
 @media (max-width: 768px) {

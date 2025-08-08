@@ -20,6 +20,15 @@
       </div>
 
       <div class="form-group">
+        <label>Number of Signatories*</label>
+        <select formControlName="numberOfSignatories" (change)="onSignatoryCountChange()">
+          <option value="1">1 Signatory</option>
+          <option value="2">2 Signatories</option>
+        </select>
+      </div>
+
+      <!-- Signatory 1 -->
+      <div class="form-group">
         <label>Signatory 1 Name*</label>
         <input type="text" formControlName="signatory1Name">
         <div *ngIf="f['signatory1Name'].invalid && f['signatory1Name'].touched" class="error">
@@ -35,7 +44,8 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- Signatory 2 -->
+      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Name*</label>
         <input type="text" formControlName="signatory2Name">
         <div *ngIf="f['signatory2Name'].invalid && f['signatory2Name'].touched" class="error">
@@ -43,7 +53,7 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Role*</label>
         <input type="text" formControlName="signatory2Role">
         <div *ngIf="f['signatory2Role'].invalid && f['signatory2Role'].touched" class="error">

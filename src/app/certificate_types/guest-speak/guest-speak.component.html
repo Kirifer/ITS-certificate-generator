@@ -2,12 +2,28 @@
   <!-- Left Panel - Form -->
   <div class="form-panel">
     <h2>Certificate Details</h2>
-    <form [formGroup]="certificateForm" (ngSubmit)="requestApproval()">
+    <form [formGroup]="speakerForm" (ngSubmit)="requestApproval()">
       <div class="form-group">
         <label>Recipient Name*</label>
         <input type="text" formControlName="recipientName">
         <div *ngIf="f['recipientName'].invalid && f['recipientName'].touched" class="error">
           Name is required (max 50 characters)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Program Name*</label>
+        <input type="text" formControlName="programName">
+        <div *ngIf="f['programName'].invalid && f['programName'].touched" class="error">
+          Program Name is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Expertise On*</label>
+        <input type="text" formControlName="expertiseOn">
+        <div *ngIf="f['expertiseOn'].invalid && f['expertiseOn'].touched" class="error">
+          This field is required
         </div>
       </div>
 
@@ -45,7 +61,7 @@
       </div>
 
       <!-- Signatory 2 -->
-      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
+      <div class="form-group" *ngIf="speakerForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Name*</label>
         <input type="text" formControlName="signatory2Name">
         <div *ngIf="f['signatory2Name'].invalid && f['signatory2Name'].touched" class="error">
@@ -53,7 +69,7 @@
         </div>
       </div>
 
-      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
+      <div class="form-group" *ngIf="speakerForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Role*</label>
         <input type="text" formControlName="signatory2Role">
         <div *ngIf="f['signatory2Role'].invalid && f['signatory2Role'].touched" class="error">
@@ -105,27 +121,24 @@
         </div>
         <h1>CERTIFICATE OF APPRECIATION</h1>
         <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-        <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
-        <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
+        <h2>{{ speakerForm.value.recipientName || 'Recipient Name' }}</h2>
+        <h3>GUEST SPEAKER</h3>
 
         <div class="certificate-text">
-          <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
-          <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          <p>For sharing her valuable knowledge during the <span class="iss-date">{{ speakerForm.value.programName }} on </span><span class="a-date">{{ speakerForm.value.issueDate | date:'longDate' }}</span> and presenting her expertise on <span class="iss-date">{{ speakerForm.value.expertiseOn }}</span></p>
         </div>
 
-        <p class="issuance">Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span></p>
-
-        <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+        <div class="signatures" [class.center-signature]="speakerForm.value.numberOfSignatories === '1'">
           <div>
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+            <p class="sig-names">{{ speakerForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+            <p class="sig-roles">{{ speakerForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
           </div>
           
-          <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+          <div *ngIf="speakerForm.value.numberOfSignatories === '2'">
             <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+            <p class="sig-names">{{ speakerForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+            <p class="sig-roles">{{ speakerForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
           </div>
         </div>
       </div>
@@ -147,27 +160,24 @@
               </div>
               <h1>CERTIFICATE OF APPRECIATION</h1>
               <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-              <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
-              <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
+              <h2>{{ speakerForm.value.recipientName || 'Recipient Name' }}</h2>
+              <h3>GUEST SPEAKER</h3>
 
               <div class="certificate-text">
-                <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
-                <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+                <p>For sharing her valuable knowledge during the <span class="iss-date">{{ speakerForm.value.programName }} on </span><span class="a-date">{{ speakerForm.value.issueDate | date:'longDate' }}</span> and presenting her expertise on <span class="iss-date">{{ speakerForm.value.expertiseOn }}</span></p>
               </div>
 
-              <p class="issuance">Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span></p>
-
-              <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+              <div class="signatures" [class.center-signature]="speakerForm.value.numberOfSignatories === '1'">
                 <div>
                   <div class="signature-line"></div>
-                  <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-                  <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+                  <p class="sig-names">{{ speakerForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+                  <p class="sig-roles">{{ speakerForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
                 </div>
                 
-                <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+                <div *ngIf="speakerForm.value.numberOfSignatories === '2'">
                   <div class="signature-line"></div>
-                  <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-                  <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+                  <p class="sig-names">{{ speakerForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+                  <p class="sig-roles">{{ speakerForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
                 </div>
               </div>
             </div>
