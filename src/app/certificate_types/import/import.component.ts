@@ -115,16 +115,17 @@ export class ImportComponent {
       reader.readAsDataURL(file);
     }
   }
-  boxColor: string = '#ffffff';
+textColor: string = '#000000';
+boxColor: string = '#ffffff';
 
 changeBoxColor(event: Event): void {
   const input = event.target as HTMLInputElement;
   this.boxColor = input.value;
 }
-textColor: string = '#000000'; // default black
 
 changeTextColor(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.textColor = input.value;
-  }
+  const input = event.target as HTMLInputElement;
+  this.textColor = input.value;
+}
+
 }

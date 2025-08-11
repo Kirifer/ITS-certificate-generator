@@ -1,1 +1,202 @@
-<p>intern-coc works!</p>
+<div class="editor-preview-container">
+  <!-- Left Panel - Form -->
+  <div class="form-panel">
+    <h2>Certificate Details</h2>
+    <form [formGroup]="certificateForm" (ngSubmit)="requestApproval()">
+      <div class="form-group">
+        <label>Recipient Name*</label>
+        <input type="text" formControlName="recipientName">
+        <div *ngIf="f['recipientName'].invalid && f['recipientName'].touched" class="error">
+          Name is required (max 50 characters)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Number of Hours*</label>
+        <input type="text" formControlName="numberOfHours">
+        <div *ngIf="f['numberOfHours'].invalid && f['numberOfHours'].touched" class="error">
+          Number of Hours Completed is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Intern's Position*</label>
+        <input type="text" formControlName="internsPosition">
+        <div *ngIf="f['internsPosition'].invalid && f['internsPosition'].touched" class="error">
+          This field is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Intern's Department*</label>
+        <input type="text" formControlName="internsDepartment">
+        <div *ngIf="f['internsDepartment'].invalid && f['internsDepartment'].touched" class="error">
+          This field is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pronoun*</label>
+        <select formControlName="pronoun" class="form-control">
+          <option value="" disabled selected>Select pronoun</option>
+          <option value="his">his</option>
+          <option value="her">her</option>
+        </select>
+        <div *ngIf="f['pronoun'].invalid && f['pronoun'].touched" class="error">
+          Pronoun is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Number of Signatories*</label>
+        <select formControlName="numberOfSignatories" (change)="onSignatoryCountChange()">
+          <option value="1">1 Signatory</option>
+          <option value="2">2 Signatories</option>
+        </select>
+      </div>
+
+      <!-- Signatory 1 -->
+      <div class="form-group">
+        <label>Signatory 1 Name*</label>
+        <input type="text" formControlName="signatory1Name">
+        <div *ngIf="f['signatory1Name'].invalid && f['signatory1Name'].touched" class="error">
+          Signatory name is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Signatory 1 Role*</label>
+        <input type="text" formControlName="signatory1Role">
+        <div *ngIf="f['signatory1Role'].invalid && f['signatory1Role'].touched" class="error">
+          Signatory role is required.
+        </div>
+      </div>
+
+      <!-- Signatory 2 -->
+      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
+        <label>Signatory 2 Name*</label>
+        <input type="text" formControlName="signatory2Name">
+        <div *ngIf="f['signatory2Name'].invalid && f['signatory2Name'].touched" class="error">
+          Signatory name is required.
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
+        <label>Signatory 2 Role*</label>
+        <input type="text" formControlName="signatory2Role">
+        <div *ngIf="f['signatory2Role'].invalid && f['signatory2Role'].touched" class="error">
+          Signatory role is required.
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" (click)="goBack()" class="btn secondary">
+          Back
+        </button>
+        <button type="button" class="btn btn-req" (click)="openModal()">
+          Request Approval
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Request for Approval Popup Modal -->
+  <div class="custom-modal-backdrop" *ngIf="isModalOpen">
+    <div class="custom-modal">
+      <button class="close-button" (click)="closeModal()">×</button>
+      <h2>REQUEST APPROVAL</h2>
+      <form #requestForm="ngForm" (ngSubmit)="submitForm(requestForm)">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" ngModel required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" ngModel required>
+        </div>
+
+        <!-- Buttons -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+          <button type="submit" [disabled]="requestForm.invalid">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Right Panel - Preview -->
+  <div class="preview-panel">
+    <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
+      <div class="certificate-content">
+        <div class="cert-img">
+
+        </div>
+        <h1>CERTIFICATE OF COMPLETION</h1>
+        <p style="margin-top: -155px; margin-bottom: -50px; text-align:justify">This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span></p>
+
+        <div class="certificate-text">
+          <p>During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
+        </div>
+
+        <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+          <div>
+            <div class="signature-line"></div>
+            <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+            <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+            <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+          </div>
+
+          <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+            <div class="signature-line"></div>
+            <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+            <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+            <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="openCertificatePreview()" class="btn print-btn bg-blue-200">
+      Preview Certificate
+    </button>
+
+    <!-- Preview window -->
+    <div *ngIf="showCertificatePreview" class="popup-overlay">
+      <div class="popup-content w-[8.5in] h-[11in]">
+
+        <div class="certificate-preview">
+          <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
+            <div class="certificate-content">
+              <div class="cert-img">
+
+              </div>
+              <h1>CERTIFICATE OF COMPLETION</h1>
+              <p style="margin-top: -155px; margin-bottom: -50px; text-align:justify">This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span></p>
+
+              <div class="certificate-text">
+                <p>During this internship, <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge <span class="font-bold">{{ certificateForm.value.recipientName }}</span> for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
+              </div>
+
+              <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+                <div>
+                  <div class="signature-line"></div>
+                  <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+                  <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+                  <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+                </div>
+
+                <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+                  <div class="signature-line"></div>
+                  <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+                  <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+                  <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button (click)="closeCertificatePreview()" class="btn close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
