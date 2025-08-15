@@ -19,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 export class InternCocComponent {
   certificateForm: FormGroup;
   currentYear = new Date().getFullYear();
-  certificateBgImage = '/coc.png';
+  certificateBgImage = '/coc-bg.png';
   showCertificatePreview = false;
   isModalOpen = false;
 
@@ -30,12 +30,14 @@ export class InternCocComponent {
       internsPosition: ['', [Validators.required, Validators.maxLength(200)]],
       internsDepartment: ['', [Validators.required, Validators.maxLength(200)]],
       pronoun: ['', Validators.required],
+      numberOfSignatories: ['1', Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],
       signatory2Name: [''],
       signatory2Role: ['']
     });
-  this.updateSignatoryValidators
+
+  this.updateSignatoryValidators(1);
 }
 
 get f() {

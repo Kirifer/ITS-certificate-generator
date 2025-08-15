@@ -5,6 +5,13 @@ import { NgIf, NgClass } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms'; 
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig = {
+  providers: [
+    provideHttpClient()
+  ]
+};
 
 @Component({
   selector: 'app-root',
@@ -27,7 +34,6 @@ export class AppComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        // Hide sidebar on login and register pages
         this.showSidebar = !event.urlAfterRedirects.includes('/login') && !event.urlAfterRedirects.includes('/register');
       });
   }

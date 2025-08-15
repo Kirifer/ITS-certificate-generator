@@ -80,11 +80,15 @@
     </div>
   </div>
 
-  <!-- Right Panel - Preview -->
+  <!-- Right Panel - Static Preview -->
   <div class="preview-panel">
-    <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'" style="width: 11.5in; height: 9.5in;">
+    <div
+      id="staticCertificate"
+      class="certificate"
+      [style.backgroundImage]="'url(' + certificateBgImage + ')'"
+      style="width: 11.5in; height: 9.5in;"
+    >
       <div class="certificate-content">
-        <div class="cert-img"></div>
         <h1 style="font-size: 50px; margin-top: -20px;">CERTIFICATE OF COMPLETION</h1>
         <p style="margin-top: -120px; font-size: 20px;">This is to Certify that</p>
         <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
@@ -95,9 +99,11 @@
           <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
         </div>
 
-        <p class="issuance" >
-          Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
-          at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
+        <p class="issuance">
+          Given on this day of
+          <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
+          at
+          <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
         </p>
 
         <div class="signatures">
@@ -122,21 +128,31 @@
     <!-- Certificate Preview Popup -->
     <div *ngIf="showCertificatePreview" class="popup-overlay">
       <div class="popup-content">
-        <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'" style="width: 11.5in; height: 9.5in;">
+        <div
+          #certificatePreview
+          id="popupCertificate"
+          class="certificate"
+          [style.backgroundImage]="'url(' + certificateBgImage + ')'"
+          style="width: 11.5in; height: 9.5in;"
+        >
           <div class="certificate-content">
-            <div class="cert-img"></div>
             <h1 style="font-size: 50px;">CERTIFICATE OF COMPLETION</h1>
             <p style="margin-top: -160px;">This is to Certify that</p>
             <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
 
             <div class="certificate-text">
-              <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
+              <p>
+                Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally
+                contributed to the success of our organization.
+              </p>
               <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
             </div>
 
-            <p class="issuance" style="">
-              Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
-              at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
+            <p class="issuance">
+              Given on this day of
+              <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
+              at
+              <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
             </p>
 
             <div class="signatures">

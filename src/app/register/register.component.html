@@ -6,7 +6,7 @@
           <h3 class="login-title">REGISTER</h3>
 
           <div class="input-with-icon">
-            <input class="text-black" type="text" formControlName="name" placeholder="Name" aria-label="Name"/>
+            <input class="text-black" type="text" formControlName="username" placeholder="Username" aria-label="Username"/>
             <span class="icon"><i class="fa-solid fa-user"></i></span>
           </div>
 
@@ -39,7 +39,9 @@
             </span>
           </div>
 
-          <button type="submit" class="login-btn" [disabled]="registerForm.invalid">Sign Up</button>
+          <button type="submit" class="login-btn" [disabled]="registerForm.invalid || loading">
+            {{ loading ? 'Registering...' : 'Sign Up' }}
+          </button>
 
           <p class="register-text transition cursor-pointer">
             Already have an account? <a (click)="goToLogin()">Sign in</a>

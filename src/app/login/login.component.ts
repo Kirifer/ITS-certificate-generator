@@ -2,6 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; 
 
 @Component({
   selector: 'app-login',
@@ -13,8 +14,13 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
   showPassword: boolean = false;
+  loading: boolean = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -22,29 +28,41 @@ export class LoginComponent {
     });
   }
 
-  // Getters for form controls
-  get email() {
+  public get email() {
     return this.loginForm.get('email');
   }
 
-  get password() {
+  public get password() {
     return this.loginForm.get('password');
   }
 
-  // Toggle password visibility
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // Form submission handler
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      console.log('Login Data:', this.loginForm.value);
-      this.router.navigate(['/']);
+    if (!this.loginForm.valid) {
+      alert('Please enter valid email and password.');
+      return;
     }
+
+    this.loading = true;
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (res) => {
+        console.log('Login successful:', res);
+        alert(res.message || 'Login successful!');
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        console.error('Login failed:', err);
+        alert(err.message || 'Wrong email or password.');
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
-  // Background animation effect
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     const navBg = document.querySelector('.login-bg') as HTMLElement | null;
@@ -55,7 +73,6 @@ export class LoginComponent {
     }
   }
 
-  // Navigate to registration
   goToRegister(): void {
     this.router.navigate(['/register']);
   }

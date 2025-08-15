@@ -7,7 +7,8 @@
     <table class="min-w-full bg-white rounded-lg text-gray-800 text-sm">
       <thead class="bg-blue-200 text-blue-900">
         <tr>
-          <th class="py-3 px-4 text-left font-semibold">Name</th>
+          <th class="py-3 px-4 text-left font-semibold">Recipient</th>
+          <th class="py-3 px-4 text-left font-semibold">Creator</th>
           <th class="py-3 px-4 text-left font-semibold">Certificate</th>
           <th class="py-3 px-4 text-left font-semibold">Status</th>
           <th class="py-3 px-4 text-center font-semibold w-24">Action</th>
@@ -15,7 +16,8 @@
       </thead>
       <tbody>
         <tr *ngFor="let cert of certificates" class="border-b hover:bg-blue-50 transition">
-          <td class="py-3 px-4">{{ cert.name }}</td>
+          <td class="py-3 px-4">{{ cert.rname }}</td>
+          <td class="py-3 px-4">{{ cert.cname }}</td>
           <td class="py-3 px-4">{{ cert.certificate }}</td>
           <td class="py-3 px-4">{{ cert.status }}</td>
           <td class="py-3 px-4 text-center">

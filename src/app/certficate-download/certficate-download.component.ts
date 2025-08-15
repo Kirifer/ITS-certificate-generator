@@ -36,31 +36,36 @@ export class CertficateDownloadComponent {
 
 certificates = [
     {
-      name: 'John Doe',
+      rname: 'John Doe',
+      cname: 'Jose Rizal',
       certificate: 'Internship Certificate',
       status: 'Approved',
       fileName: 'john-doe.pdf'
     },
     {
-      name: 'Jane Doe',
+      rname: 'Jane Doe',
+      cname: 'Jose Laurel',
       certificate: 'Recognition Certificate',
       status: 'Approved',
       fileName: 'jane-doe.pdf'
     },
     {
-      name: 'Henry C',
+      rname: 'Henry C',
+      cname: 'Jose David',
       certificate: 'Appreciation Certificate',
       status: 'Approved',
       fileName: 'henry-c.pdf'
     },
     {
-      name: 'Henry D',
+      rname: 'Henry D',
+      cname: 'Jose Del Pilar',
       certificate: 'Appreciation Certificate',
       status: 'Approved',
       fileName: 'henry-d.pdf'
     },
     {
-      name: 'Juan Dela Cruz',
+      rname: 'Juan Dela Cruz',
+      cname: 'Jose Mercado',
       certificate: 'Recognition Certificate',
       status: 'Approved',
       fileName: 'juan-delacruz.pdf'
