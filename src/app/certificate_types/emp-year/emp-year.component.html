@@ -81,13 +81,13 @@
           <img src="its_logo.png" class="cert-logo" alt="Company Logo" style="width: 120px;">
         </div>
         <h1>CERTIFICATE OF APPRECIATION</h1>
-        <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
+        <p>This certificate of appreciation is awarded to</p>
         <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
         <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
 
         <div class="certificate-text">
-          <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
-          <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization. Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          
         </div>
 
         <p class="issuance">
@@ -124,20 +124,20 @@
           <div class="cert-img">
             <img src="its_logo.png" class="cert-logo" alt="Company Logo" style="width: 120px;">
           </div>
-          <h1>CERTIFICATE OF APPRECIATION</h1>
-          <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-          <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
-          <h3>EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
-          <div class="certificate-text">
-            <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization.</p>
-            <p>Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          <h1 style="margin-top: -1em;">CERTIFICATE OF APPRECIATION</h1>
+          <p style="margin-top: -1em;">This certificate of appreciation is awarded to</p>
+          <h2 style="margin-top: -1em;">{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
+          <h3 style="padding-bottom: 1.2em; margin-top: -1.3em;">EMPLOYEE OF THE YEAR {{ currentYear }}</h3>
+          <div class="certificate-text" style="margin-top: -2em;">
+            <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization. Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+            
           </div>
-          <p class="issuance">
+          <p class="issuance" style="margin-top: -1em;">
             Given on this day of
             <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || ('December 7, ' + currentYear) }}</span>
             at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
           </p>
-          <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+          <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'" style="margin-bottom: 1em;">
             <div>
               <div class="signature-line"></div>
               <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
