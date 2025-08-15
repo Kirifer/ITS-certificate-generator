@@ -209,10 +209,10 @@
 }
 
 .signatures {
-
   display: flex;
   justify-content: space-around;
   margin-bottom: 80px;
+  text-align: left;
 }
 
 .signature {
@@ -230,16 +230,20 @@
 }
 .sig-names {
   text-transform: uppercase;
-  font-family: "Noto Serif", serif !important;
+  font-family: "Arial", serif !important;
   font-optical-sizing: auto !important;
   font-weight: bold;
   font-style: normal;
   font-variation-settings:"wdth" 100 !important;
-  color: #001b6b;
+  color: #000000;
   font-size: 18px;
 }
 .sig-roles {
-  font-weight: bold;
+  font-family: "Arial", serif !important;
+}
+
+.single-signature {
+  justify-content: flex-start;
 }
 
 .btn-req{

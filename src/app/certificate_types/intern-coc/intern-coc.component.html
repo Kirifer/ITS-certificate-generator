@@ -138,16 +138,14 @@
           <p>During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
         </div>
 
-        <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+        <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
           <div>
-            <div class="signature-line"></div>
             <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
             <p class="sig-roles">IT Squarehub Global Services Corp.</p>
           </div>
 
           <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
-            <div class="signature-line"></div>
             <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
             <p class="sig-roles">IT Squarehub Global Services Corp.</p>
@@ -177,16 +175,14 @@
                 <p>During this internship, <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge <span class="font-bold">{{ certificateForm.value.recipientName }}</span> for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
               </div>
 
-              <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
+              <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
                 <div>
-                  <div class="signature-line"></div>
                   <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
                   <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
                   <p class="sig-roles">IT Squarehub Global Services Corp.</p>
                 </div>
 
                 <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
-                  <div class="signature-line"></div>
                   <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
                   <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
                   <p class="sig-roles">IT Squarehub Global Services Corp.</p>
