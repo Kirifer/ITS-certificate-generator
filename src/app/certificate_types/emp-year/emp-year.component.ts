@@ -19,7 +19,7 @@ export class EmpYearComponent implements AfterViewInit {
   currentYear = new Date().getFullYear();
   certificateBgImage = '/certificate-bg.png';
   showCertificatePreview = false;
-  signatories: any[] = [];
+  signatories: number[] = [];
 
   @ViewChild('modalCertificate', { static: false }) modalCertificate!: ElementRef;
 
@@ -32,10 +32,10 @@ export class EmpYearComponent implements AfterViewInit {
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       numberOfSignatories: ['2', Validators.required],
-      signatory1Name: ['', [Validators.required]],
-      signatory1Role: ['', [Validators.required]],
-      signatory2Name: ['', [Validators.required]],
-      signatory2Role: ['', [Validators.required]]
+      signatory1Name: ['', Validators.required],
+      signatory1Role: ['', Validators.required],
+      signatory2Name: ['', Validators.required],
+      signatory2Role: ['', Validators.required]
     });
 
     this.approvalForm = this.fb.group({});
@@ -62,15 +62,15 @@ export class EmpYearComponent implements AfterViewInit {
 
   initializeApprovalForm() {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
-    this.signatories = Array.from({ length: num });
-    this.approvalForm = this.fb.group({});
-    this.signatories.forEach((_, index) => {
-      this.approvalForm.addControl(`approverName${index}`, this.fb.control('', Validators.required));
-      this.approvalForm.addControl(`approverEmail${index}`, this.fb.control('', [Validators.required, Validators.email]));
+    this.signatories = Array.from({ length: num }, (_, i) => i);
+    const group: any = {};
+    this.signatories.forEach(index => {
+      group[`approverName${index}`] = ['', Validators.required];
+      group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
     });
+    this.approvalForm = this.fb.group(group);
   }
 
-  // Submit approval from the main preview modal
   async submitApprovalFromPreview() {
     if (this.approvalForm.invalid) {
       this.approvalForm.markAllAsTouched();
@@ -78,24 +78,25 @@ export class EmpYearComponent implements AfterViewInit {
     }
 
     try {
-      // Wait a bit to ensure DOM is fully rendered
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 300)); // Ensure DOM rendered
 
       const canvas = await html2canvas(this.modalCertificate.nativeElement, { scale: 2 });
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) throw new Error('Failed to generate PNG');
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('Failed to generate certificate PNG');
 
       const formData = new FormData();
-      formData.append('recipientName', this.certificateForm.value.recipientName);
-      formData.append('issueDate', this.certificateForm.value.issueDate);
-      formData.append('numberOfSignatories', this.certificateForm.value.numberOfSignatories);
-      formData.append('signatory1Name', this.certificateForm.value.signatory1Name);
-      formData.append('signatory1Role', this.certificateForm.value.signatory1Role);
-      formData.append('signatory2Name', this.certificateForm.value.signatory2Name || '');
-      formData.append('signatory2Role', this.certificateForm.value.signatory2Role || '');
+      const cert = this.certificateForm.value;
+
+      formData.append('recipientName', cert.recipientName);
+      formData.append('issueDate', cert.issueDate);
+      formData.append('numberOfSignatories', cert.numberOfSignatories);
+      formData.append('signatory1Name', cert.signatory1Name);
+      formData.append('signatory1Role', cert.signatory1Role);
+      formData.append('signatory2Name', cert.signatory2Name || '');
+      formData.append('signatory2Role', cert.signatory2Role || '');
       formData.append('certificatePng', blob, 'certificate.png');
 
-      this.signatories.forEach((_, index) => {
+      this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
