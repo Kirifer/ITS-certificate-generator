@@ -1,78 +1,181 @@
-.account-settings-container {
-  background-color: #e5e5e5;
-  padding: 2rem;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
+.account-container {
+  max-width: 750px;
+  margin: 50px auto;
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 200px;
+  box-shadow: 0 30px 42px 30px rgba(0, 0, 0, 0.1);
+  border: 5px solid #2563eb;
+ background-image: url("../../../public/accountBG.png");
+ background-size: cover;
+background-position: center;
 }
 
-h2 {
-  color: #004a99;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  font-size: 30px;
+.profile-settings {
+  max-width: 700px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+.ImportB {
+box-shadow: 3px 4px 5px rgb(136, 136, 136); 
+border-radius: 4px;
+padding: 8px 12px;
+background-color: rgb(255, 255, 255); 
+border-radius: 5px; 
+color: rgb(0, 0, 0); 
+text-align: center; 
+margin-left:450px; 
+margin-top:-50px;
+border: 1px solid black;
+
+}
+.ImportB:hover {
+background-color: rgb(103, 3, 161);
+color: white;
+border: 1px solid black;
+
 }
 
-.form-group {
-  margin-bottom: 1.2rem;
+.section {
+  margin-bottom: 20px;
 }
 
 label {
-  display: block;
   font-weight: bold;
-  color: #004a99;
-  margin-bottom: 0.3rem;
+  display: block;
+  margin-bottom: 8px;
 }
 
-input,
-select {
-  width: 100%;
-  padding: 0.6rem;
-  border: 2px solid #004a99;
-  border-radius: 8px;
-  background-color: #fff;
-  color: #333;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
-}
-
-input:focus,
-select:focus {
-  border-color: #0077cc;
-  box-shadow: 0 0 5px rgba(0, 119, 204, 0.3);
-}
-
-.button-group {
+.row {
   display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
+  gap: 10px;
+}
+
+.email-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 button {
-  padding: 0.6rem 2rem;
+  padding: 8px 12px;
+  border-radius: 6px;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-button[type="button"] {
-  background-color: #004a99;
+button.EmailB {
+ background: white;
+  border: 1px solid rgb(173, 173, 173);
+  color: black;
+  box-shadow: 3px 4px 5px rgb(136, 136, 136);
+}
+button.EmailB:hover {
+  background-color: green;
+  color: white
+}
+
+
+button.LogoutB {
+ background: white;
+  border: 1px solid rgb(173, 173, 173);
+  color: black;
+  box-shadow: 3px 4px 5px rgb(136, 136, 136);
+}
+button.LogoutB:hover {
+  background-color: #cccccc;
   color: white;
 }
 
-button[type="submit"] {
-  background-color: #004a99;
+button.danger {
+  background: white;
+  border: 1px solid rgb(173, 173, 173);
+  color: rgb(255, 0, 0);
+  box-shadow: 3px 4px 5px rgb(136, 136, 136);
+}
+
+button.danger:hover {
+  background-color: #e74c3c;
   color: white;
 }
 
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+button.save {
+  background: white;
+  border: 1px solid rgb(173, 173, 173);
+  color: green;
+  box-shadow: 3px 4px 5px rgb(136, 136, 136);
+}
+button.save:hover {
+  background-color: green;
+  color: white
+}
+
+button.delete {
+  background: white;
+  color: black;
+}
+button.delete:hover {
+  background-color: #e74c3c;
+  color: white
+}
+
+
+.profile-picture {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.profile-picture img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-picture p {
+  font-size: 12px;
+  color: #777;
+}
+
+.integrations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.integration-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.integration-card img {
+  width: 40px;
+  height: 40px;
+}
+
+.integration-card .title {
+  font-weight: bold;
+}
+
+.integration-card .subtitle {
+  font-size: 12px;
+  color: #555;
+}
+
+.status.connected {
+  margin-left: auto;
+  color: green;
+  font-weight: bold;
 }

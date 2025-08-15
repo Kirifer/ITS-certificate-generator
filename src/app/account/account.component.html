@@ -1,35 +1,58 @@
-<div class="account-settings-container">
-  <h2>Account Settings</h2>
+<div class="account-container">
+  <form class="profile-settings" [formGroup]="profileForm" style="margin-top:20px" (ngSubmit)="saveProfile()">
 
-  <form [formGroup]="accountForm" (ngSubmit)="onSave()">
-    <div class="form-group">
-      <label><i class="fa fa-user"></i> Name:</label>
-      <input type="text" formControlName="name" />
+    <img *ngIf="imageUrl" [src]="imageUrl" alt="User Image"
+      style="width: 20%; height: 20%; object-fit: cover; margin-bottom:-60px; border-radius: 50%; border: 5px solid rgb(88, 88, 88);">
+
+    <div class="profile-picture">
+      <div style="margin-top: 20px; margin-left: 130px;">
+        <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput />
+        <button class="ImportB" type="button" (click)="fileInput.click()">Change Image</button>
+        <div *ngIf="imageUrl" class="preview"></div>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label><i class="fa fa-envelope"></i> Email:</label>
-      <input type="email" formControlName="email" />
+    <div class="section" style="margin-top:40px">
+      <label>Username</label>
+      <div class="row">
+        <input type="text" placeholder="Username" formControlName="username" />
+      </div>
     </div>
 
-    <div class="form-group">
-      <label><i class="fa fa-gear"></i> Select Role:</label>
-      <select formControlName="role">
-        <option value="">-- Select Role --</option>
-        <option value="admin">Admin</option>
-        <option value="user">User</option>
-        <option value="moderator">Moderator</option>
-      </select>
+    <div class="section">
+      <label>Contact email</label>
+      <div class="email-row">
+        <input type="email" placeholder="Email" formControlName="email" />
+        <button type="button" class="EmailB" (click)="changeEmail()">Change Email</button>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label><i class="fa fa-lock"></i> Password:</label>
-      <input type="password" formControlName="password" />
+   <div class="section" style="margin-top:40px">
+      <label>Role</label>
+      <div class="row">
+        <input type="text" placeholder="Username" formControlName="Role" />
+        <button type="button" class="EmailB" (click)="changeEmail()">Change Role</button>
+      </div>
     </div>
 
-    <div class="button-group">
-      <button type="button" (click)="toggleEdit()">Edit <i class="fa-solid fa-pencil"></i></button>
-      <button type="submit" [disabled]="!isEditable || accountForm.invalid">Save <i class="fa-solid fa-floppy-disk"></i></button>
+    <div class="section">
+      <label>Password</label>
+      <div class="row">
+        <input type="password" placeholder="Current password" formControlName="currentPassword" />
+        <input type="password" placeholder="New password" formControlName="newPassword" />
+      </div>
     </div>
+
+    <div class="section" style="margin-top:60px">
+      <div class="row">
+        <button type="button" class="LogoutB" (click)="logout()">Log out</button>
+        <button type="button" class="danger" (click)="deleteAccount()">Delete my account</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <button type="submit" class="save" [disabled]="profileForm.invalid">Save changes</button>
+    </div>
+
   </form>
 </div>
