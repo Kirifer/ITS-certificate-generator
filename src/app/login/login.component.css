@@ -1,181 +1,204 @@
-.account-container {
-  max-width: 750px;
-  margin: 50px auto;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 30px 42px 30px rgba(0, 0, 0, 0.1);
-  border: 5px solid #2563eb;
- background-image: url("../../../public/accountBG.png");
- background-size: cover;
-background-position: center;
-}
-
-.profile-settings {
-  max-width: 700px;
-  margin: auto;
-  font-family: Arial, sans-serif;
-}
-.ImportB {
-box-shadow: 3px 4px 5px rgb(136, 136, 136); 
-border-radius: 4px;
-padding: 8px 12px;
-background-color: rgb(255, 255, 255); 
-border-radius: 5px; 
-color: rgb(0, 0, 0); 
-text-align: center; 
-margin-left:450px; 
-margin-top:-50px;
-border: 1px solid black;
-
-}
-.ImportB:hover {
-background-color: rgb(103, 3, 161);
-color: white;
-border: 1px solid black;
-
-}
-
-.section {
-  margin-bottom: 20px;
-}
-
-label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.row {
+/* Background and Container */
+.login-bg {
+  height: 101vh; 
+  width: 102%; 
+  background-image: url("/cert_bg.png"); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  gap: 10px;
-}
-
-.email-row {
-  display: flex;
-  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  margin-top: -20px;
+  margin-bottom: -1100px;
+  margin-left: -20px;
+  margin-right: -120px;
 }
 
-input {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.logo {
+  width: 200px;
+  margin: 0 auto; 
+
 }
 
-button {
-  padding: 8px 12px;
-  border-radius: 6px;
+.header {
+  text-align: center;
+  color: #3be2ff;
+  font-weight: bold;
+  font-size: 30px;
+  margin: 0; 
+  margin-bottom: -7em;
+}
+
+/* Login Container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100%; 
+ 
+}
+
+/* Login Box */
+.login-box {
+  height: 430px;
+  background-color: rgba(4, 51, 105, 0.9);
+  opacity: 0.9;
+  padding: 2rem;
+  border-radius: 40px;
+  width: 130%;
+  max-width: 400px;
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  
+}
+
+/* Input Styles */
+.input-with-icon {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 1rem; 
+  border-radius: 25px;
   border: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+}
+
+.input-with-icon .icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+  font-size: 1rem;
+}
+
+/* Title Styles */
+.login-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 10px 0 40px; 
+}
+
+/* Form Options */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.forgot {
+  color: #00d4ff;
+  text-decoration: none;
+}
+
+/* Button Styles */
+.login-btn {
+  background-color: #f1c40f;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 25px;
+  width: 100%;
+  margin-top: 1rem;
+  font-weight: bold;
   cursor: pointer;
 }
 
-button.EmailB {
- background: white;
-  border: 1px solid rgb(173, 173, 173);
-  color: black;
-  box-shadow: 3px 4px 5px rgb(136, 136, 136);
-}
-button.EmailB:hover {
-  background-color: green;
-  color: white
+.login-btn:hover {
+  background-color: #e0b90e;
 }
 
-
-button.LogoutB {
- background: white;
-  border: 1px solid rgb(173, 173, 173);
-  color: black;
-  box-shadow: 3px 4px 5px rgb(136, 136, 136);
+/* Register Text */
+.register-text {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
 }
-button.LogoutB:hover {
-  background-color: #cccccc;
+
+.register-text a {
+  color: #00d4ff;
+  text-decoration: none;
+}
+
+/* Footer Styles */
+.footer {
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
   color: white;
+  font-size: 0.85rem;
 }
 
-button.danger {
-  background: white;
-  border: 1px solid rgb(173, 173, 173);
-  color: rgb(255, 0, 0);
-  box-shadow: 3px 4px 5px rgb(136, 136, 136);
-}
-
-button.danger:hover {
-  background-color: #e74c3c;
-  color: white;
-}
-
-button.save {
-  background: white;
-  border: 1px solid rgb(173, 173, 173);
-  color: green;
-  box-shadow: 3px 4px 5px rgb(136, 136, 136);
-}
-button.save:hover {
-  background-color: green;
-  color: white
-}
-
-button.delete {
-  background: white;
-  color: black;
-}
-button.delete:hover {
-  background-color: #e74c3c;
-  color: white
-}
-
-
-.profile-picture {
+.footer-top {
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  justify-content: center;
 }
-
-.profile-picture img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.profile-picture p {
-  font-size: 12px;
-  color: #777;
-}
-
-.integrations {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.integration-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.integration-card img {
+.footer-logo{
   width: 40px;
-  height: 40px;
+  display: flex;
+}
+.footer-info {
+  display: flex;
+  align-items: center;     
+  justify-content: center; 
+  gap: 10px;               
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 20px;
+  text-align: center;
+  margin-top: -350px;
 }
 
-.integration-card .title {
-  font-weight: bold;
+.footer-bottom {
+  width: 100%; 
+  margin-top: 10px;
+  margin-bottom: 40px;
 }
 
-.integration-card .subtitle {
-  font-size: 12px;
-  color: #555;
+.footer-text {
+  margin: 0;
+  padding: 0 20px; 
+  line-height: 1.5;
+  white-space: nowrap; 
+  overflow: hidden; 
+  margin-top: -150px;
 }
 
-.status.connected {
-  margin-left: auto;
-  color: green;
-  font-weight: bold;
+
+/* Sidebar Styles */
+#default-sidebar {
+  display: none;
+  background-color: black; 
+}
+
+#default-sidebar.ng-enter {
+  display: block; 
+}
+
+#default-sidebar.ng-leave {
+  display: none; 
+}
+
+.p-4 {
+  transition: margin-left 0.3s ease; 
+}
+
+.mat-sidenav-container {
+  height: 100vh; 
+}
+
+.mat-sidenav-content {
+  height: 100%; 
 }
