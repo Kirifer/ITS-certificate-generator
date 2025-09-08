@@ -1,17 +1,43 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import jsPDF from 'jspdf';
 
 @Component({
-  selector: 'app-certficate-download',
+  selector: 'app-certificate-download',
   standalone: true,
   imports: [RouterModule, CommonModule],
   templateUrl: './certficate-download.component.html',
-  styleUrl:'./certficate-download.component.css'
+  styleUrls: ['./certficate-download.component.css']
 })
-export class CertficateDownloadComponent {
+export class CertificateDownloadComponent implements OnInit {
+  certificates: any[] = [];
   showModal = false;
   selectedCert: any;
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.fetchApprovedCertificates();
+  }
+
+  fetchApprovedCertificates() {
+    this.http.get<any[]>('http://localhost:4000/api/approved-certificates')
+      .subscribe({
+        next: (data) => {
+          this.certificates = data.map(cert => ({
+            id: cert.id,
+            name: cert.rname,       
+            creator: cert.creator,    
+            certificate: 'Certificate',
+            status: cert.status,
+            imageUrl: `http://localhost:4000/${cert.png_path}`
+          }));
+        },
+        error: (err) => console.error('Failed to fetch approved certificates', err)
+      });
+  }
 
   openModal(cert: any) {
     this.selectedCert = cert;
@@ -24,60 +50,21 @@ export class CertficateDownloadComponent {
   }
 
   downloadSelectedCert() {
-    if (!this.selectedCert || !this.selectedCert.downloadUrl) return;
+    if (!this.selectedCert || !this.selectedCert.imageUrl) return;
 
-    const link = document.createElement('a');
-    link.href = this.selectedCert.downloadUrl;
-    link.download = 'certificate.pdf'; // Change if needed
-    link.click();
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; 
+    img.src = this.selectedCert.imageUrl;
 
-    this.closeModal();
-  }
+    img.onload = () => {
+      const pdf = new jsPDF('landscape', 'pt', [img.width, img.height]);
+      pdf.addImage(img, 'PNG', 0, 0, img.width, img.height);
+      pdf.save(`certificate-${this.selectedCert.name}.pdf`);
+      this.closeModal();
+    };
 
-certificates = [
-    {
-      rname: 'John Doe',
-      cname: 'Jose Rizal',
-      certificate: 'Internship Certificate',
-      status: 'Approved',
-      fileName: 'john-doe.pdf'
-    },
-    {
-      rname: 'Jane Doe',
-      cname: 'Jose Laurel',
-      certificate: 'Recognition Certificate',
-      status: 'Approved',
-      fileName: 'jane-doe.pdf'
-    },
-    {
-      rname: 'Henry C',
-      cname: 'Jose David',
-      certificate: 'Appreciation Certificate',
-      status: 'Approved',
-      fileName: 'henry-c.pdf'
-    },
-    {
-      rname: 'Henry D',
-      cname: 'Jose Del Pilar',
-      certificate: 'Appreciation Certificate',
-      status: 'Approved',
-      fileName: 'henry-d.pdf'
-    },
-    {
-      rname: 'Juan Dela Cruz',
-      cname: 'Jose Mercado',
-      certificate: 'Recognition Certificate',
-      status: 'Approved',
-      fileName: 'juan-delacruz.pdf'
-    }
-  ];
-
-  downloadCertificate(cert: any): void {
-    const fileUrl = `assets/certificates/${cert.fileName}`;
-    const a = document.createElement('a');
-    a.href = fileUrl;
-    a.download = cert.fileName;
-    a.click();
+    img.onerror = (err) => {
+      console.error('Failed to load image for PDF', err);
+    };
   }
 }
-

@@ -2,10 +2,11 @@
   <!-- Left Panel - Form -->
   <div class="form-panel">
     <h2>Certificate Details</h2>
-    <form [formGroup]="certificateForm" (ngSubmit)="requestApproval()">
+
+    <form [formGroup]="certificateForm">
       <div class="form-group">
         <label>Recipient Name*</label>
-        <input type="text" formControlName="recipientName">
+        <input type="text" formControlName="recipientName" />
         <div *ngIf="f['recipientName'].invalid && f['recipientName'].touched" class="error">
           Name is required (max 50 characters)
         </div>
@@ -13,7 +14,7 @@
 
       <div class="form-group">
         <label>Date of Issue*</label>
-        <input type="date" formControlName="issueDate">
+        <input type="date" formControlName="issueDate" />
         <div *ngIf="f['issueDate'].invalid && f['issueDate'].touched" class="error">
           Date of issue is required.
         </div>
@@ -21,7 +22,7 @@
 
       <div class="form-group">
         <label>Number of Signatories*</label>
-        <select formControlName="numberOfSignatories" (change)="onSignatoryCountChange()">
+        <select formControlName="numberOfSignatories" (change)="onSignatoriesChange()">
           <option value="1">1 Signatory</option>
           <option value="2">2 Signatories</option>
         </select>
@@ -30,7 +31,7 @@
       <!-- Signatory 1 -->
       <div class="form-group">
         <label>Signatory 1 Name*</label>
-        <input type="text" formControlName="signatory1Name">
+        <input type="text" formControlName="signatory1Name" />
         <div *ngIf="f['signatory1Name'].invalid && f['signatory1Name'].touched" class="error">
           Signatory name is required.
         </div>
@@ -38,7 +39,7 @@
 
       <div class="form-group">
         <label>Signatory 1 Role*</label>
-        <input type="text" formControlName="signatory1Role">
+        <input type="text" formControlName="signatory1Role" />
         <div *ngIf="f['signatory1Role'].invalid && f['signatory1Role'].touched" class="error">
           Signatory role is required.
         </div>
@@ -47,7 +48,7 @@
       <!-- Signatory 2 -->
       <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Name*</label>
-        <input type="text" formControlName="signatory2Name">
+        <input type="text" formControlName="signatory2Name" />
         <div *ngIf="f['signatory2Name'].invalid && f['signatory2Name'].touched" class="error">
           Signatory name is required.
         </div>
@@ -55,7 +56,7 @@
 
       <div class="form-group" *ngIf="certificateForm.value.numberOfSignatories === '2'">
         <label>Signatory 2 Role*</label>
-        <input type="text" formControlName="signatory2Role">
+        <input type="text" formControlName="signatory2Role" />
         <div *ngIf="f['signatory2Role'].invalid && f['signatory2Role'].touched" class="error">
           Signatory role is required.
         </div>
@@ -65,107 +66,41 @@
         <button type="button" (click)="goBack()" class="btn secondary">
           Back
         </button>
-        <button type="button" class="btn btn-req" (click)="openModal()">
-          Request Approval
+        <button type="button" class="btn btn-req" (click)="openCertificatePreview()">
+          Preview & Request Approval
         </button>
       </div>
     </form>
   </div>
 
-  <!-- Minimalist Popup Modal -->
-<div class="custom-modal-backdrop" *ngIf="isModalOpen">
-  <div class="custom-modal">
-    <button class="close-button" (click)="closeModal()">×</button>
-    <h2>REQUEST APPROVAL</h2>
-    <form #requestForm="ngForm" (ngSubmit)="submitForm(requestForm)">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" ngModel required>
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" ngModel required>
-      </div>
-
-      <!-- Buttons -->
-      <div class="modal-actions">
-        <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
-        <button type="submit" [disabled]="requestForm.invalid">Submit</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-  <!-- Right Panel - Preview -->
+  <!-- Right Panel - Certificate Preview -->
   <div class="preview-panel">
-    <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'" style="width: 8.5in; height: 11in;">
+    <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
       <div class="certificate-content">
         <div class="cert-img">
-          <img src="/its_logo.png" class="cert-logo" style="width: 120px;">
+          <img src="its_logo.png" class="cert-logo" alt="Company Logo" style="width: 120px;">
         </div>
         <h1>CERTIFICATE OF APPRECIATION</h1>
-        <p style="margin-top: -155px ; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
+        <p>This certificate of appreciation is awarded to</p>
         <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
         <h3>INITIATIVE AWARD</h3>
 
         <div class="certificate-text">
-          <p>In recognition of his <span class="iss-date">proactive attitude, dedication, and initiative</span>in going above and</p>
-          <p>beyond his responsibilities, we considered him an outstanding intern, setting a new bar for</p>
-          <p>quality and innovation</p>
+          <p>In recognition of his <span class="iss-date">proactive attitude, dedication, and initiative</span>in going above and beyond his responsibilities, we considered him an outstanding intern, setting a new bar for quality and innovation.</p>
         </div>
 
-        <p class="issuance" style="margin-top: -90px;">Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span></p>
-
-        <div class="signatures">
-          <div>
-            <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
-          </div>
-          <div>
-            <div class="signature-line"></div>
-            <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-            <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button (click)="openCertificatePreview()" class="btn print-btn bg-blue-200">
-      Preview Certificate
-    </button>
-
-    <!-- preview window -->
-    <div *ngIf="showCertificatePreview" class="popup-overlay">
-  <div class="popup-content">
-    <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'" style="width: 8.5in; height: 11in;">
-      <div class="certificate-content">
-        <div class="cert-img">
-          <img src="/its_logo.png" class="cert-logo" style="width: 120px;">
-        </div>
-        <h1>CERTIFICATE OF APPRECIATION</h1>
-        <p style="margin-top: -155px; margin-bottom: -50px;">This certificate of appreciation is awarded to</p>
-        <h2>{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
-        <h3>INITIATIVE AWARD</h3>
-
-        <div class="certificate-text">
-          <p>In recognition of his <span class="iss-date">proactive attitude, dedication, and initiative</span>in going above and</p>
-          <p>beyond his responsibilities, we considered him an outstanding intern, setting a new bar for</p>
-          <p>quality and innovation</p>
-        </div>
-
-        <p class="issuance" style="margin-top: -90px;">
-          Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span>
-          at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
+        <p class="issuance">
+          Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
         </p>
 
-        <div class="signatures">
+        <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'">
           <div>
             <div class="signature-line"></div>
             <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
           </div>
-          <div>
+
+          <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
             <div class="signature-line"></div>
             <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
@@ -173,9 +108,71 @@
         </div>
       </div>
     </div>
-    <button (click)="closeCertificatePreview()" class="btn close-btn">Close</button>
   </div>
-</div>
 
+  <!-- Preview & Approval Modal -->
+  <div *ngIf="showCertificatePreview" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Certificate Preview & Request Approval</h3>
+
+      <!-- Certificate Capture -->
+      <div #modalCertificate class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
+        <div class="certificate-content">
+          <div class="cert-img">
+            <img src="its_logo.png" class="cert-logo" alt="Company Logo" style="width: 120px;">
+          </div>
+          <h1 style="margin-top: -1em;">CERTIFICATE OF APPRECIATION</h1>
+          <p style="margin-top: -1em;">This certificate of appreciation is awarded to</p>
+          <h2 style="margin-top: -1em;">{{ certificateForm.value.recipientName || 'Recipient Name' }}</h2>
+          <h3 style="padding-bottom: 1.2em; margin-top: -1.3em;">INITIATIVE AWARD {{ currentYear }}</h3>
+
+          <div class="certificate-text" style="margin-top: -2em;">
+            <p>Her exceptional dedication, hard work, and unwavering commitment to IT Squarehub have exceptionally contributed to the success of our organization. Congratulations on this well-deserved honor and our gratitude for your outstanding contributions.</p>
+          </div>
+
+          <p class="issuance">
+            Given on this day of <span class="iss-date">{{ (certificateForm.value.issueDate | date:'longDate') || 'December 7, ' + currentYear }}</span> at <span class="iss-date">IT Squarehub Global Services Corporation, Angeles City, Pampanga.</span>
+          </p>
+
+          <div class="signatures" [class.center-signature]="certificateForm.value.numberOfSignatories === '1'" style="margin-bottom: 1em;">
+            <div>
+              <div class="signature-line"></div>
+              <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+              <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+            </div>
+            <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+              <div class="signature-line"></div>
+              <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+              <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Approval Form -->
+      <form [formGroup]="approvalForm" (ngSubmit)="submitApprovalFromPreview()">
+        <div *ngFor="let signatory of signatories; let i = index">
+          <div class="form-group">
+            <label>Approver {{ i + 1 }} Name*</label>
+            <input type="text" [formControlName]="'approverName' + i" />
+            <div *ngIf="approvalForm.get('approverName' + i)?.invalid && approvalForm.get('approverName' + i)?.touched" class="error">
+              Name is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Approver {{ i + 1 }} Email*</label>
+            <input type="email" [formControlName]="'approverEmail' + i" />
+            <div *ngIf="approvalForm.get('approverEmail' + i)?.invalid && approvalForm.get('approverEmail' + i)?.touched" class="error">
+              Valid email is required.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-req">Submit for Approval</button>
+          <button type="button" (click)="closeCertificatePreview()" class="btn close-btn">Close</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

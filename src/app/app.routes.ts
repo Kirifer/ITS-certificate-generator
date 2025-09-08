@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponentComponent } from './home-component/home-component.component';
 import { CertificateComponent } from './certificate/certificate.component';
-import { CertficateDownloadComponent } from './certficate-download/certficate-download.component';
+import { CertificateDownloadComponent } from './certficate-download/certficate-download.component';
 import { RegisterComponent } from './register/register.component';
 import { EmpYearComponent } from './certificate_types/emp-year/emp-year.component';
 import { AccountComponent } from './account/account.component';
@@ -17,7 +17,8 @@ import { CompletionComponent } from './certificate_types/completion/completion.c
 import { ImportComponent } from './certificate_types/import/import.component';
 import { GuestSpeakComponent } from './certificate_types/guest-speak/guest-speak.component';
 import { InternCocComponent } from './certificate_types/intern-coc/intern-coc.component';
-
+import { PendingComponent } from './pending/pending.component';
+import { InternsCertComponent } from './interns-cert/interns-cert.component';
 
 export const routes: Routes = [
     { path: 'certificates', component: CertificateComponent },
@@ -26,23 +27,24 @@ export const routes: Routes = [
       path: 'login',
       loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
     },
-    { path: 'approved', component: CertficateDownloadComponent },
+    { path: 'approved', component: CertificateDownloadComponent },
     { path: 'register', component: RegisterComponent },
-    { path: 'downloads', component: CertficateDownloadComponent },
+    { path: 'downloads', component: CertificateDownloadComponent },
     { path: 'empyear', component: EmpYearComponent },
     { path: 'account-settings', component: AccountComponent },
     { path: 'attendance', component: AttendanceComponent },
     { path: 'peer-award', component: PeerAwardComponent },
     { path: 'vibes-award', component: VibesAwardComponent },
     { path: 'punctuality', component: PunctualityComponent },
-    { path: 'exemplary', component: ExemplaryComponent},
-    { path: 'initiative', component: InitiativeComponent},
-    { path: 'leadership', component: LeadershipComponent},
-    { path: 'outstanding', component: OutstandingComponent},
+    { path: 'exemplary', component: ExemplaryComponent },
+    { path: 'initiative', component: InitiativeComponent },
+    { path: 'leadership', component: LeadershipComponent },
+    { path: 'outstanding', component: OutstandingComponent },
     { path: 'completion', component: CompletionComponent },
     { path: 'import', component: ImportComponent },
     { path: 'guest-speak', component: GuestSpeakComponent },
     { path: 'intern-coc', component: InternCocComponent },
-    { path: 'account', component: AccountComponent},
-
+    { path: 'account', component: AccountComponent },
+    { path: 'pending', component: PendingComponent },
+    { path: 'intern-certs', component: InternsCertComponent}
 ];

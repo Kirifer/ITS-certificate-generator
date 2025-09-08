@@ -12,15 +12,14 @@ const app = express();
 
 // Ensure uploads folder exists
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
 app.use(cors({
   origin: 'http://localhost:4200',
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MySQL connection
 const db = mysql.createConnection({
@@ -38,54 +37,36 @@ db.connect(err => {
   console.log('Connected to MySQL');
 });
 
-// Multer configuration
+// Multer setup for PNG uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// Middleware to verify JWT
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Access token missing' });
-
-  jwt.verify(token, process.env.JWT_SECRET || 'yoursecretkey', (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user;
-    next();
-  });
-}
-
-// REGISTER
+// Register
 app.post('/api/auth/register', async (req, res) => {
   const { username, email, role, password } = req.body;
   if (!username || !email || !role || !password)
     return res.status(400).json({ message: 'All fields are required' });
 
-  try {
-    db.query('SELECT id FROM users WHERE email = ?', [email], async (err, results) => {
-      if (err) return res.status(500).json({ message: 'Database error' });
-      if (results.length > 0) return res.status(400).json({ message: 'Email already registered' });
+  db.query('SELECT id FROM users WHERE email = ?', [email], async (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    if (results.length > 0) return res.status(400).json({ message: 'Email already registered' });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      db.query(
-        'INSERT INTO users (username, email, role, password) VALUES (?, ?, ?, ?)',
-        [username, email, role, hashedPassword],
-        (err) => {
-          if (err) return res.status(500).json({ message: 'Database error' });
-          return res.status(201).json({ message: 'User registered successfully' });
-        }
-      );
-    });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    db.query(
+      'INSERT INTO users (username, email, role, password) VALUES (?, ?, ?, ?)',
+      [username, email, role, hashedPassword],
+      (err) => {
+        if (err) return res.status(500).json({ message: 'Database error' });
+        res.status(201).json({ message: 'User registered successfully' });
+      }
+    );
+  });
 });
 
-// LOGIN
+// Login
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -113,39 +94,83 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// GET CURRENT USER
-app.get('/api/user/me', authenticateToken, (req, res) => {
-  db.query('SELECT id, username, email FROM users WHERE id = ?', [req.user.id], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
-    res.json(results[0]);
-  });
-});
-
-// UPDATE PROFILE
-app.put('/api/user/update', authenticateToken, async (req, res) => {
-  const { username, email, newPassword } = req.body;
-  const updateFields = [];
-  const values = [];
-
-  if (username) { updateFields.push('username = ?'); values.push(username); }
-  if (email) { updateFields.push('email = ?'); values.push(email); }
-  if (newPassword) { updateFields.push('password = ?'); values.push(await bcrypt.hash(newPassword, 10)); }
-
-  if (!updateFields.length) return res.status(400).json({ message: 'No fields to update' });
-
-  values.push(req.user.id);
-  const sql = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
-  db.query(sql, values, err => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    res.json({ message: 'Profile updated successfully' });
-  });
-});
-
-// SAVE PENDING CERTIFICATE
+// Save certificate (from form with PNG)
 app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res) => {
   const {
     recipientName, issueDate, numberOfSignatories,
+    signatory1Name, signatory1Role, signatory2Name, signatory2Role
+  } = req.body;
+
+  const approvalSignatories = [];
+  Object.keys(req.body).forEach(key => {
+    if (key.startsWith('approverName')) {
+      const index = key.replace('approverName', '');
+      approvalSignatories.push({
+        name: req.body[`approverName${index}`],
+        email: req.body[`approverEmail${index}`]
+      });
+    }
+  });
+
+  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !req.file)
+    return res.status(400).json({ message: 'All required fields must be provided' });
+
+  const sql = `
+    INSERT INTO pending_certificates
+    (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role, png_path, approval_signatories, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  `;
+
+  db.query(sql, [
+    recipientName,
+    issueDate,
+    numberOfSignatories,
+    signatory1Name,
+    signatory1Role,
+    signatory2Name || null,
+    signatory2Role || null,
+    path.join('uploads', req.file.filename),
+    JSON.stringify(approvalSignatories)
+  ], (err) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Failed to save certificate' });
+    }
+    res.status(201).json({ message: 'Certificate saved successfully' });
+  });
+});
+
+app.get('/api/pending-certificates', (req, res) => {
+  const sql = `
+    SELECT 
+      id,
+      recipient_name AS rname,
+      issue_date,
+      number_of_signatories,
+      signatory1_name,
+      signatory1_role,
+      signatory2_name,
+      signatory2_role,
+      png_path,
+      approval_signatories,
+      status
+    FROM pending_certificates
+    WHERE status = 'pending'
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Failed to fetch certificates' });
+    }
+    res.json(results);
+  });
+}
+
+// SAVE PENDING CERTIFICATE (COC)
+,app.post('/api/pending_cert_coc', upload.single('certificatePng'), (req, res) => {
+  const {
+    recipientName, numberOfHours, internsPosition, internsDepartment, pronoun, numberOfSignatories,
     signatory1Name, signatory1Role, signatory2Name, signatory2Role
   } = req.body;
 
@@ -161,19 +186,22 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     }
   });
 
-  // Validate required fields
-  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !req.file)
+  // Validating required fields
+  if (!recipientName || !numberOfHours || !internsPosition || !internsDepartment || !pronoun || !numberOfSignatories || !signatory1Name || !signatory1Role || !req.file)
     return res.status(400).json({ message: 'All required fields must be provided' });
 
   const sql = `
-    INSERT INTO pending_certificates
-    (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role, png_path, approval_signatories)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO pending_cert_coc
+    (recipient_name, number_of_hours, interns_position, interns_department, pro_noun, number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role, png_path, approval_signatories)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(sql, [
     recipientName,
-    issueDate,
+    numberOfHours,
+    internsPosition,
+    internsDepartment,
+    pronoun,
     numberOfSignatories,
     signatory1Name,
     signatory1Role,
@@ -188,8 +216,101 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     }
     res.status(201).json({ message: 'Certificate saved successfully' });
   });
+}
+));
+
+app.post('/api/pending-certificates/:id/reject', (req, res) => {
+  const certId = req.params.id;
+  const sql = `UPDATE pending_certificates SET status = 'rejected' WHERE id = ?`;
+  db.query(sql, [certId], err => {
+    if (err) {
+      console.error('Rejection error:', err);
+      return res.status(500).json({ message: 'Rejection failed' });
+    }
+    res.json({ message: 'Certificate rejected' });
+  });
 });
 
-// Start server
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res) => res.set('Access-Control-Allow-Origin', '*')
+}));
+
+app.post('/api/approve-certificate-with-signature', upload.single('certificatePng'), (req, res) => {
+  console.log('req.file:', req.file);
+  console.log('req.body:', req.body);
+
+  const certId = req.body.id;
+  if (!req.file || !certId) {
+    return res.status(400).json({ message: 'Missing file or certificate ID' });
+  }
+
+  const newPath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
+
+  db.query('SELECT * FROM pending_certificates WHERE id = ?', [certId], (err, results) => {
+    if (err || results.length === 0) {
+      console.error('Certificate not found:', err);
+      return res.status(500).json({ message: 'Certificate not found' });
+    }
+
+    const cert = results[0];
+    const approvalSignatories = typeof cert.approval_signatories === 'string' 
+      ? cert.approval_signatories 
+      : JSON.stringify(cert.approval_signatories || []);
+
+    const insertSql = `
+      INSERT INTO approved_certificates
+      (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
+      signatory2_name, signatory2_role, png_path, approval_signatories, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')
+    `;
+
+    db.query(insertSql, [
+      cert.recipient_name,
+      cert.issue_date,
+      cert.number_of_signatories,
+      cert.signatory1_name,
+      cert.signatory1_role,
+      cert.signatory2_name,
+      cert.signatory2_role,
+      newPath,
+      approvalSignatories
+    ], (err, result) => {
+      if (err) {
+        console.error('Insert failed:', err);
+        return res.status(500).json({ message: 'Insert failed' });
+      }
+      console.log('Approved certificate ID:', result.insertId);
+
+      db.query('DELETE FROM pending_certificates WHERE id = ?', [certId], (err) => {
+        if (err) return res.status(500).json({ message: 'Cleanup failed' });
+        res.json({ message: 'Certificate approved and moved to approved_certificates' });
+      });
+    });
+  });
+});
+
+app.get('/api/approved-certificates', (req, res) => {
+  const sql = `
+    SELECT 
+      id,
+      recipient_name AS rname,
+      signatory1_name,
+      issue_date,
+      png_path,
+      status
+    FROM approved_certificates
+    WHERE status = 'approved'
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database fetch failed:', err);
+      return res.status(500).json({ message: 'Failed to fetch approved certificates' });
+    }
+    res.json(results);
+  });
+});
+
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

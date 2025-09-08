@@ -23,7 +23,9 @@
     "express": "^5.1.0",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.2",
     "mysql2": "^3.14.3",
+    "ng2-pdf-viewer": "^10.4.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
