@@ -1,55 +1,70 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-outstanding',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './outstanding.component.html',
-  styleUrl: './outstanding.component.css'
+  styleUrls: ['./outstanding.component.css']
 })
-export class OutstandingComponent {
+export class OutstandingComponent implements AfterViewInit {
   outstandingForm: FormGroup;
-  popupData: { name: string, email: string, date: string } | null = null;
+  approvalForm: FormGroup;
   currentYear = new Date().getFullYear();
   certificateBgImage = '/certificate-bg.png';
   showCertificatePreview = false;
-  isModalOpen = false;
+  signatories: number[] = [];
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  @ViewChild('modalCertificate', { static: false }) modalCertificate!: ElementRef;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private http: HttpClient
+  ) {
     this.outstandingForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
-      numberOfSignatories: ['1', Validators.required],
-      signatory1Name: ['', [Validators.required]],
-      signatory1Role: ['', [Validators.required]],
-      signatory2Name: [''],
-      signatory2Role: ['']
+      numberOfSignatories: ['2', Validators.required],
+      signatory1Name: ['', Validators.required],
+      signatory1Role: ['', Validators.required],
+      signatory2Name: ['', Validators.required],
+      signatory2Role: ['', Validators.required]
     });
-    this.updateSignatoryValidators(1);
+
+    this.approvalForm = this.fb.group({});
+  }
+
+  ngAfterViewInit() {
+    this.initializeApprovalForm();
   }
 
   get f() {
     return this.outstandingForm.controls;
   }
 
-  requestApproval() {
-    if (this.outstandingForm.invalid) {
-      this.outstandingForm.markAllAsTouched();
-      return;
+  onSignatoriesChange() {
+    const num = parseInt(this.outstandingForm.value.numberOfSignatories, 10);
+    if (num === 1) {
+      this.outstandingForm.patchValue({
+        signatory2Name: '',
+        signatory2Role: ''
+      });
     }
-    console.log('Approval requested:', this.outstandingForm.value);
+    this.initializeApprovalForm();
   }
 
   onSignatoryCountChange() {
-    const count = this.outstandingForm.value.numberOfSignatories;
-    this.updateSignatoryValidators(parseInt(count, 10)); 
+    const count = parseInt(this.outstandingForm.value.numberOfSignatories, 10);
+    this.updateSignatoryValidators(count);
   }
-  
+
   updateSignatoryValidators(count: number) {
     if (count === 1) {
       this.outstandingForm.get('signatory2Name')?.clearValidators();
@@ -58,38 +73,73 @@ export class OutstandingComponent {
       this.outstandingForm.get('signatory2Name')?.setValidators([Validators.required]);
       this.outstandingForm.get('signatory2Role')?.setValidators([Validators.required]);
     }
-    
+
     this.outstandingForm.get('signatory2Name')?.updateValueAndValidity();
     this.outstandingForm.get('signatory2Role')?.updateValueAndValidity();
   }
+
+
+  initializeApprovalForm() {
+    const num = parseInt(this.outstandingForm.value.numberOfSignatories, 10) || 1;
+    this.signatories = Array.from({ length: num }, (_, i) => i);
+    const group: any = {};
+    this.signatories.forEach(index => {
+      group[`approverName${index}`] = ['', Validators.required];
+      group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
+    });
+    this.approvalForm = this.fb.group(group);
+  }
+
+  async submitApprovalFromPreview() {
+    if (this.approvalForm.invalid) {
+      this.approvalForm.markAllAsTouched();
+      return;
+    }
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const canvas = await html2canvas(this.modalCertificate.nativeElement, { scale: 2 });
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('Failed to generate certificate PNG');
+
+      const formData = new FormData();
+      const cert = this.outstandingForm.value;
+
+      formData.append('recipientName', cert.recipientName);
+      formData.append('issueDate', cert.issueDate);
+      formData.append('numberOfSignatories', cert.numberOfSignatories);
+      formData.append('signatory1Name', cert.signatory1Name);
+      formData.append('signatory1Role', cert.signatory1Role);
+      formData.append('signatory2Name', cert.signatory2Name || '');
+      formData.append('signatory2Role', cert.signatory2Role || '');
+      formData.append('certificatePng', blob, 'certificate.png');
+
+      this.signatories.forEach(index => {
+        formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
+        formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
+      });
+
+      await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
+      alert('Certificate request sent successfully!');
+      this.closeCertificatePreview();
+    } catch (err) {
+      console.error('Error submitting certificate:', err);
+      alert('Failed to send request.');
+    }
+  }
+
 
   goBack() {
     this.router.navigate(['/certificates']);
   }
 
   openCertificatePreview() {
+    this.initializeApprovalForm();
     this.showCertificatePreview = true;
   }
 
   closeCertificatePreview() {
     this.showCertificatePreview = false;
-  }
-
-  openModal() {
-    this.isModalOpen = true;
-  }
-
-  closeModal() {
-    this.isModalOpen = false;
-  }
-
-  submitForm(form: any) {
-    if (form.valid) {
-      const { name, email } = form.value;
-
-      console.log('Send to Outlook:', name, email);
-
-      this.closeModal();
-    }
   }
 }
