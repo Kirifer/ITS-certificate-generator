@@ -28,8 +28,8 @@ export class CertificateDownloadComponent implements OnInit {
         next: (data) => {
           this.certificates = data.map(cert => ({
             id: cert.id,
-            name: cert.rname,       
-            creator: cert.creator,    
+            name: cert.rname,
+            creator: cert.creator_name,
             certificate: 'Certificate',
             status: cert.status,
             imageUrl: `http://localhost:4000/${cert.png_path}`
@@ -53,7 +53,7 @@ export class CertificateDownloadComponent implements OnInit {
     if (!this.selectedCert || !this.selectedCert.imageUrl) return;
 
     const img = new Image();
-    img.crossOrigin = 'anonymous'; 
+    img.crossOrigin = 'anonymous';
     img.src = this.selectedCert.imageUrl;
 
     img.onload = () => {
@@ -67,4 +67,22 @@ export class CertificateDownloadComponent implements OnInit {
       console.error('Failed to load image for PDF', err);
     };
   }
+
+
+removeCertificate(cert: any) {
+  if (!confirm(`Are you sure you want to delete certificate for ${cert.name}?`)) return;
+
+  this.http.delete(`http://localhost:4000/api/approved-certificates/${cert.id}`)
+    .subscribe({
+      next: () => {
+        this.certificates = this.certificates.filter(c => c.id !== cert.id);
+        alert('Certificate deleted successfully.');
+      },
+      error: (err) => {
+        console.error('Failed to delete certificate:', err);
+        alert('Failed to delete certificate.');
+      }
+    });
 }
+}
+

@@ -1,6 +1,7 @@
 <div class="account-container">
-  <form class="profile-settings" [formGroup]="profileForm" style="margin-top:20px" (ngSubmit)="saveProfile()">
+  <div class="profile-settings" style="margin-top:20px">
 
+    <!-- User Profile Image -->
     <img *ngIf="imageUrl" [src]="imageUrl" alt="User Image"
       style="width: 20%; height: 20%; object-fit: cover; margin-bottom:-60px; border-radius: 50%; border: 5px solid rgb(88, 88, 88);">
 
@@ -8,51 +9,74 @@
       <div style="margin-top: 20px; margin-left: 130px;">
         <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput />
         <button class="ImportB" type="button" (click)="fileInput.click()">Change Image</button>
-        <div *ngIf="imageUrl" class="preview"></div>
       </div>
     </div>
 
-    <div class="section" style="margin-top:40px">
-      <label>Username</label>
-      <div class="row">
-        <input type="text" placeholder="Username" formControlName="username" />
+    <!-- Display Mode -->
+    <ng-container *ngIf="!editMode; else editTemplate">
+      <div class="section" style="margin-top:40px">
+        <label>Username</label>
+        <p>{{ profileForm.get('username')?.value }}</p>
       </div>
-    </div>
 
-    <div class="section">
-      <label>Contact email</label>
-      <div class="email-row">
-        <input type="email" placeholder="Email" formControlName="email" />
-        <button type="button" class="EmailB" (click)="changeEmail()">Change Email</button>
+      <div class="section">
+        <label>Contact Email</label>
+        <p>{{ profileForm.get('email')?.value }}</p>
       </div>
-    </div>
 
-   <div class="section" style="margin-top:40px">
-      <label>Role</label>
-      <div class="row">
-        <input type="text" placeholder="Username" formControlName="Role" />
-        <button type="button" class="EmailB" (click)="changeEmail()">Change Role</button>
+      <div class="section">
+        <label>Role</label>
+        <p>{{ profileForm.get('role')?.value }}</p>
       </div>
-    </div>
 
-    <div class="section">
-      <label>Password</label>
-      <div class="row">
-        <input type="password" placeholder="Current password" formControlName="currentPassword" />
-        <input type="password" placeholder="New password" formControlName="newPassword" />
+      <div class="section">
+        <label>Password</label>
+        <div class="row">
+
+          <button type="button" class="EmailB" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="section" style="margin-top:60px">
-      <div class="row">
-        <button type="button" class="LogoutB" (click)="logout()">Log out</button>
-        <button type="button" class="danger" (click)="deleteAccount()">Delete my account</button>
+      <div class="section" style="margin-top:60px">
+        <div class="row">
+          <button type="button" class="LogoutB" (click)="logout()">Log out</button>
+          <button type="button" class="danger" (click)="deleteAccount()">Delete my account</button>
+        </div>
       </div>
-    </div>
 
-    <div class="section">
-      <button type="submit" class="save" [disabled]="profileForm.invalid">Save changes</button>
-    </div>
+      <div class="section">
+        <button type="button" class="save" (click)="editMode = true">
+          Edit Profile
+        </button>
+      </div>
+    </ng-container>
 
-  </form>
+    <!-- Edit Mode -->
+    <ng-template #editTemplate>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" style="margin-top:20px">
+        <div class="section">
+          <label>Username</label>
+          <input type="text" formControlName="username" />
+        </div>
+
+        <div class="section">
+          <label>Contact Email</label>
+          <input type="email" formControlName="email" />
+        </div>
+
+        <div class="section">
+          <label>New Password</label>
+          <input type="password" formControlName="newPassword" placeholder="Enter new password" />
+        </div>
+
+        <div class="section" style="margin-top:60px">
+          <button type="submit" class="save" [disabled]="profileForm.invalid">Save Changes</button>
+          <button type="button" class="danger" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </form>
+    </ng-template>
+
+  </div>
 </div>

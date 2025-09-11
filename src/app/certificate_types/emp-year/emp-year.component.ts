@@ -63,11 +63,16 @@ export class EmpYearComponent implements AfterViewInit {
   initializeApprovalForm() {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
     this.signatories = Array.from({ length: num }, (_, i) => i);
-    const group: any = {};
+
+    const group: any = {
+      creatorName: ['', Validators.required] 
+    };
+
     this.signatories.forEach(index => {
       group[`approverName${index}`] = ['', Validators.required];
       group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
     });
+
     this.approvalForm = this.fb.group(group);
   }
 
@@ -87,6 +92,7 @@ export class EmpYearComponent implements AfterViewInit {
       const formData = new FormData();
       const cert = this.certificateForm.value;
 
+      // Certificate details
       formData.append('recipientName', cert.recipientName);
       formData.append('issueDate', cert.issueDate);
       formData.append('numberOfSignatories', cert.numberOfSignatories);
@@ -94,8 +100,12 @@ export class EmpYearComponent implements AfterViewInit {
       formData.append('signatory1Role', cert.signatory1Role);
       formData.append('signatory2Name', cert.signatory2Name || '');
       formData.append('signatory2Role', cert.signatory2Role || '');
+      formData.append('creator_name', this.approvalForm.value.creatorName);
+
+      // Certificate PNG
       formData.append('certificatePng', blob, 'certificate.png');
 
+      // Approvers
       this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);

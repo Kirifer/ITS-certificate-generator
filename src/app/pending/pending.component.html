@@ -8,7 +8,9 @@
       <thead class="bg-yellow-200 text-yellow-900">
         <tr>
           <th class="py-3 px-4 text-left font-semibold">Recipient</th>
+          <th class="py-3 px-4 text-left font-semibold">Creator</th>
           <th class="py-3 px-4 text-left font-semibold">Signatory 1</th>
+           <th class="py-3 px-4 text-left font-semibold">Signatory 2</th>
           <th class="py-3 px-4 text-left font-semibold">Issue Date</th>
           <th class="py-3 px-4 text-left font-semibold">Status</th>
           <th class="py-3 px-4 text-center font-semibold w-24">Action</th>
@@ -17,7 +19,9 @@
       <tbody>
         <tr *ngFor="let cert of pendingCertificates" class="border-b hover:bg-yellow-50 transition">
           <td class="py-3 px-4">{{ cert.rname }}</td>
+          <td class="py-3 px-4">{{ cert.creator_name }}</td>
           <td class="py-3 px-4">{{ cert.signatory1_name }}</td>
+           <td class="py-3 px-4">{{ cert.signatory2_name }}</td>
           <td class="py-3 px-4">{{ cert.issue_date }}</td>
           <td class="py-3 px-4 capitalize">{{ cert.status }}</td>
           <td class="py-3 px-4 text-center">

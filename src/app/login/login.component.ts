@@ -2,7 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service'; 
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -50,9 +50,16 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
         console.log('Login successful:', res);
-        alert(res.message || 'Login successful!');
-        this.router.navigate(['/']);
-      },
+        console.log('Login successful:', res);
+          if (res.token) {
+            localStorage.setItem('token', res.token);
+          }
+          if (res.user) {
+            localStorage.setItem('user', JSON.stringify(res.user));
+          }
+          alert(res.message || 'Login successful!');
+            this.router.navigate(['/']);
+        },
       error: (err) => {
         console.error('Login failed:', err);
         alert(err.message || 'Wrong email or password.');
