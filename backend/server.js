@@ -19,7 +19,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res) => res.set('Access-Control-Allow-Origin', '*')
+}));
 
 // MySQL connection
 const db = mysql.createConnection({
@@ -37,12 +39,14 @@ db.connect(err => {
   console.log('Connected to MySQL');
 });
 
-// Multer setup for PNG uploads
+// Multer setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
+
+// AUTH 
 
 // Register
 app.post('/api/auth/register', async (req, res) => {
@@ -94,11 +98,14 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// Save certificate (from form with PNG)
+// CERTIFICATES 
+
+// Save pending certificate (generic)
 app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res) => {
   const {
     recipientName, issueDate, numberOfSignatories,
-    signatory1Name, signatory1Role, signatory2Name, signatory2Role
+    signatory1Name, signatory1Role, signatory2Name, signatory2Role,
+    creator_name
   } = req.body;
 
   const approvalSignatories = [];
@@ -112,13 +119,14 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     }
   });
 
-  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !req.file)
+  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !creator_name || !req.file)
     return res.status(400).json({ message: 'All required fields must be provided' });
 
   const sql = `
     INSERT INTO pending_certificates
-    (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role, png_path, approval_signatories, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+    (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
+     signatory2_name, signatory2_role, png_path, approval_signatories, creator_name, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
   `;
 
   db.query(sql, [
@@ -129,8 +137,9 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     signatory1Role,
     signatory2Name || null,
     signatory2Role || null,
-    path.join('uploads', req.file.filename),
-    JSON.stringify(approvalSignatories)
+    path.join('uploads', req.file.filename).replace(/\\/g, '/'),
+    JSON.stringify(approvalSignatories),
+    creator_name
   ], (err) => {
     if (err) {
       console.error('Database error:', err);
@@ -140,6 +149,7 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
   });
 });
 
+// Get pending
 app.get('/api/pending-certificates', (req, res) => {
   const sql = `
     SELECT 
@@ -153,6 +163,7 @@ app.get('/api/pending-certificates', (req, res) => {
       signatory2_role,
       png_path,
       approval_signatories,
+      creator_name,
       status
     FROM pending_certificates
     WHERE status = 'pending'
@@ -165,16 +176,16 @@ app.get('/api/pending-certificates', (req, res) => {
     }
     res.json(results);
   });
-}
+});
 
-// SAVE PENDING CERTIFICATE (COC)
-,app.post('/api/pending_cert_coc', upload.single('certificatePng'), (req, res) => {
+// Save pending COC
+app.post('/api/pending-cert_coc', upload.single('certificatePng'), (req, res) => {
   const {
     recipientName, numberOfHours, internsPosition, internsDepartment, pronoun, numberOfSignatories,
-    signatory1Name, signatory1Role, signatory2Name, signatory2Role
+    signatory1Name, signatory1Role, signatory2Name, signatory2Role,
+    creator_name
   } = req.body;
 
-  // Collect approval signatories dynamically
   const approvalSignatories = [];
   Object.keys(req.body).forEach(key => {
     if (key.startsWith('approverName')) {
@@ -186,14 +197,15 @@ app.get('/api/pending-certificates', (req, res) => {
     }
   });
 
-  // Validating required fields
-  if (!recipientName || !numberOfHours || !internsPosition || !internsDepartment || !pronoun || !numberOfSignatories || !signatory1Name || !signatory1Role || !req.file)
+  if (!recipientName || !numberOfHours || !internsPosition || !internsDepartment || !pronoun || !numberOfSignatories || !signatory1Name || !signatory1Role || !creator_name || !req.file)
     return res.status(400).json({ message: 'All required fields must be provided' });
 
   const sql = `
     INSERT INTO pending_cert_coc
-    (recipient_name, number_of_hours, interns_position, interns_department, pro_noun, number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role, png_path, approval_signatories)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (recipient_name, number_of_hours, interns_position, interns_department, pro_noun,
+     number_of_signatories, signatory1_name, signatory1_role, signatory2_name, signatory2_role,
+     png_path, approval_signatories, creator_name)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(sql, [
@@ -207,8 +219,9 @@ app.get('/api/pending-certificates', (req, res) => {
     signatory1Role,
     signatory2Name || null,
     signatory2Role || null,
-    req.file.path,
-    JSON.stringify(approvalSignatories)
+    path.join('uploads', req.file.filename).replace(/\\/g, '/'),
+    JSON.stringify(approvalSignatories),
+    creator_name
   ], (err) => {
     if (err) {
       console.error('Database error:', err);
@@ -216,9 +229,9 @@ app.get('/api/pending-certificates', (req, res) => {
     }
     res.status(201).json({ message: 'Certificate saved successfully' });
   });
-}
-));
+});
 
+// Reject pending
 app.post('/api/pending-certificates/:id/reject', (req, res) => {
   const certId = req.params.id;
   const sql = `UPDATE pending_certificates SET status = 'rejected' WHERE id = ?`;
@@ -231,14 +244,8 @@ app.post('/api/pending-certificates/:id/reject', (req, res) => {
   });
 });
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
-  setHeaders: (res) => res.set('Access-Control-Allow-Origin', '*')
-}));
-
+// Approve certificate
 app.post('/api/approve-certificate-with-signature', upload.single('certificatePng'), (req, res) => {
-  console.log('req.file:', req.file);
-  console.log('req.body:', req.body);
-
   const certId = req.body.id;
   if (!req.file || !certId) {
     return res.status(400).json({ message: 'Missing file or certificate ID' });
@@ -253,19 +260,20 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
     }
 
     const cert = results[0];
-    const approvalSignatories = typeof cert.approval_signatories === 'string' 
-      ? cert.approval_signatories 
+    const approvalSignatories = typeof cert.approval_signatories === 'string'
+      ? cert.approval_signatories
       : JSON.stringify(cert.approval_signatories || []);
 
     const insertSql = `
       INSERT INTO approved_certificates
-      (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
-      signatory2_name, signatory2_role, png_path, approval_signatories, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')
+      (recipient_name, creator_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
+       signatory2_name, signatory2_role, png_path, approval_signatories, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')
     `;
 
     db.query(insertSql, [
       cert.recipient_name,
+      cert.creator_name,
       cert.issue_date,
       cert.number_of_signatories,
       cert.signatory1_name,
@@ -273,13 +281,12 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
       cert.signatory2_name,
       cert.signatory2_role,
       newPath,
-      approvalSignatories
+      approvalSignatories,
     ], (err, result) => {
       if (err) {
         console.error('Insert failed:', err);
         return res.status(500).json({ message: 'Insert failed' });
       }
-      console.log('Approved certificate ID:', result.insertId);
 
       db.query('DELETE FROM pending_certificates WHERE id = ?', [certId], (err) => {
         if (err) return res.status(500).json({ message: 'Cleanup failed' });
@@ -289,6 +296,44 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
   });
 });
 
+// DELETE approved certificate by ID
+app.delete('/api/approved-certificates/:id', (req, res) => {
+  const certId = req.params.id;
+
+  // First, get the certificate to retrieve the image path
+  const selectSql = 'SELECT png_path FROM approved_certificates WHERE id = ?';
+  db.query(selectSql, [certId], (err, results) => {
+    if (err) {
+      console.error('Select failed:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Certificate not found' });
+    }
+
+    const imagePath = path.join(__dirname, results[0].png_path);
+
+    // Delete the record from the database
+    const deleteSql = 'DELETE FROM approved_certificates WHERE id = ?';
+    db.query(deleteSql, [certId], (err) => {
+      if (err) {
+        console.error('Delete failed:', err);
+        return res.status(500).json({ message: 'Failed to delete certificate from DB' });
+      }
+
+      // Attempt to delete the image file (optional, safe fallback)
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.warn('Image file not deleted or missing:', err.message);
+        }
+        return res.status(200).json({ message: 'Certificate deleted successfully' });
+      });
+    });
+  });
+});
+
+// Get approved
 app.get('/api/approved-certificates', (req, res) => {
   const sql = `
     SELECT 
@@ -297,6 +342,7 @@ app.get('/api/approved-certificates', (req, res) => {
       signatory1_name,
       issue_date,
       png_path,
+      creator_name,
       status
     FROM approved_certificates
     WHERE status = 'approved'
@@ -311,6 +357,6 @@ app.get('/api/approved-certificates', (req, res) => {
   });
 });
 
-
+//  START 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
