@@ -105,17 +105,29 @@
   <div class="preview-panel">
     <div class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
       <div class="certificate-content">
-        <div class="cert-img">
-
+        <!-- Company Logo and Name -->
+        <div class="company-header" >
+          <img src="/its_logo.png" alt="Company Logo" class="company-logo" />
+          <span class="company-name" >IT Squarehub</span>
         </div>
 
         <h1>CERTIFICATE OF COMPLETION</h1>
         <div class="certificate-text">
-          <p style="text-align:justify">This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span></p>
+          <p style="text-align:justify">
+            This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> 
+            has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> 
+            as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> 
+            under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> 
+            at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span>
+          </p>
 
           <br><br>
 
-          <p>During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
+          <p>
+            During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, 
+            enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} 
+            for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.
+          </p>
         </div>
 
         <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
@@ -142,35 +154,46 @@
 
       <!-- Certificate Capture -->
       <div class="capture-container">
-      <div #modalCertificate class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
-        <div class="certificate-content">
-          <div class="cert-img">
+        <div #modalCertificate class="certificate" [style.backgroundImage]="'url(' + certificateBgImage + ')'">
+          <div class="certificate-content">
+            <div class="company-header">
+              <img src="/its_logo.png" alt="Company Logo" class="company-logo" />
+              <span class="company-name">IT Squarehub</span>
+            </div>
+            <h1>CERTIFICATE OF COMPLETION</h1>
+            <div class="certificate-text">
+              <p style="text-align:justify">
+                This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> 
+                has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> 
+                as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> 
+                under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> 
+                at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span>
+              </p>
 
-          </div>
-          <h1>CERTIFICATE OF COMPLETION</h1>
-          <div class="certificate-text">
-            <p style="text-align:justify">This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> as a <span class="font-bold">{{ certificateForm.value.internsPosition }} Intern</span> under the <span class="font-bold">{{ certificateForm.value.internsDepartment }} Department</span> at <span class="font-bold">IT SQUAREHUB GLOBAL SERVICES CORPORATION.</span></p>
+              <br><br>
 
-            <br><br>
-
-            <p>During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.</p>
-          </div>
-
-          <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
-            <div>
-              <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
-              <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
-              <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+              <p>
+                During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, 
+                enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} 
+                for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.
+              </p>
             </div>
 
-            <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
-              <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
-              <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
-              <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+            <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
+              <div>
+                <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
+                <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>
+                <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+              </div>
+
+              <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
+                <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
+                <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Chief Finance & Operating Officer' }}</p>
+                <p class="sig-roles">IT Squarehub Global Services Corp.</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       <!-- Dynamic Approval Form -->
@@ -194,13 +217,13 @@
         </div>
 
         <!-- Creator Name -->
-          <div class="form-group">
-            <label>Creator Name*</label>
-            <input type="text" formControlName="creatorName" />
-            <div *ngIf="approvalForm.get('creatorName')?.invalid && approvalForm.get('creatorName')?.touched" class="error">
-              Creator name is required.
-            </div>
+        <div class="form-group">
+          <label>Creator Name*</label>
+          <input type="text" formControlName="creatorName" />
+          <div *ngIf="approvalForm.get('creatorName')?.invalid && approvalForm.get('creatorName')?.touched" class="error">
+            Creator name is required.
           </div>
+        </div>
 
         <div class="modal-actions">
           <button type="submit" class="btn btn-req">Submit for Approval</button>
