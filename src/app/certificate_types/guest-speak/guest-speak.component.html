@@ -147,7 +147,7 @@
             <p> For sharing valuable knowledge during the <span class="iss-date">{{ speakerForm.value.programName || 'Program Name' }} on </span> <span class="a-date">{{ speakerForm.value.issueDate | date:'longDate' }}</span>, and presenting expertise on   <span class="iss-date">{{ speakerForm.value.expertiseOn || 'Expertise' }}</span>.</p>
           </div>
 
-          <div class="signatures" [class.center-signature]="speakerForm.value.numberOfSignatories === '1'">
+          <div class="signatures" [class.center-signature]="speakerForm.value.numberOfSignatories === '1'" style="margin-bottom: 1.5em;">
             <div>
               <div class="signature-line"></div>
               <p class="sig-names">{{ speakerForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
@@ -180,6 +180,15 @@
             </div>
           </div>
         </div>
+
+        <!-- Creator Name -->
+          <div class="form-group">
+            <label>Creator Name*</label>
+            <input type="text" formControlName="creatorName" />
+            <div *ngIf="approvalForm.get('creatorName')?.invalid && approvalForm.get('creatorName')?.touched" class="error">
+              Creator name is required.
+            </div>
+          </div>
 
         <div class="modal-actions">
           <button type="submit" class="btn btn-req">Submit for Approval</button>

@@ -46,7 +46,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// AUTH 
+/* AUTH */
 
 // Register
 app.post('/api/auth/register', async (req, res) => {
@@ -98,14 +98,14 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// CERTIFICATES 
+/* CERTIFICATES */
 
-// Save pending certificate (generic)
+// Save pending certificate (generic with certificate_type)
 app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res) => {
   const {
     recipientName, issueDate, numberOfSignatories,
     signatory1Name, signatory1Role, signatory2Name, signatory2Role,
-    creator_name
+    creator_name, certificate_type
   } = req.body;
 
   const approvalSignatories = [];
@@ -125,8 +125,8 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
   const sql = `
     INSERT INTO pending_certificates
     (recipient_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
-     signatory2_name, signatory2_role, png_path, approval_signatories, creator_name, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+     signatory2_name, signatory2_role, png_path, approval_signatories, creator_name, status, certificate_type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
   `;
 
   db.query(sql, [
@@ -139,7 +139,8 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     signatory2Role || null,
     path.join('uploads', req.file.filename).replace(/\\/g, '/'),
     JSON.stringify(approvalSignatories),
-    creator_name
+    creator_name,
+    certificate_type || null
   ], (err) => {
     if (err) {
       console.error('Database error:', err);
@@ -164,7 +165,8 @@ app.get('/api/pending-certificates', (req, res) => {
       png_path,
       approval_signatories,
       creator_name,
-      status
+      status,
+      certificate_type
     FROM pending_certificates
     WHERE status = 'pending'
   `;
@@ -267,8 +269,8 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
     const insertSql = `
       INSERT INTO approved_certificates
       (recipient_name, creator_name, issue_date, number_of_signatories, signatory1_name, signatory1_role,
-       signatory2_name, signatory2_role, png_path, approval_signatories, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')
+       signatory2_name, signatory2_role, png_path, approval_signatories, status, certificate_type)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', ?)
     `;
 
     db.query(insertSql, [
@@ -282,6 +284,7 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
       cert.signatory2_role,
       newPath,
       approvalSignatories,
+      cert.certificate_type || 'Employee of the Year'
     ], (err, result) => {
       if (err) {
         console.error('Insert failed:', err);
@@ -300,7 +303,6 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
 app.delete('/api/approved-certificates/:id', (req, res) => {
   const certId = req.params.id;
 
-  // First, get the certificate to retrieve the image path
   const selectSql = 'SELECT png_path FROM approved_certificates WHERE id = ?';
   db.query(selectSql, [certId], (err, results) => {
     if (err) {
@@ -314,7 +316,6 @@ app.delete('/api/approved-certificates/:id', (req, res) => {
 
     const imagePath = path.join(__dirname, results[0].png_path);
 
-    // Delete the record from the database
     const deleteSql = 'DELETE FROM approved_certificates WHERE id = ?';
     db.query(deleteSql, [certId], (err) => {
       if (err) {
@@ -322,7 +323,6 @@ app.delete('/api/approved-certificates/:id', (req, res) => {
         return res.status(500).json({ message: 'Failed to delete certificate from DB' });
       }
 
-      // Attempt to delete the image file (optional, safe fallback)
       fs.unlink(imagePath, (err) => {
         if (err) {
           console.warn('Image file not deleted or missing:', err.message);
@@ -343,7 +343,8 @@ app.get('/api/approved-certificates', (req, res) => {
       issue_date,
       png_path,
       creator_name,
-      status
+      status,
+      certificate_type
     FROM approved_certificates
     WHERE status = 'approved'
   `;
@@ -357,6 +358,6 @@ app.get('/api/approved-certificates', (req, res) => {
   });
 });
 
-//  START 
+/* START SERVER */
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

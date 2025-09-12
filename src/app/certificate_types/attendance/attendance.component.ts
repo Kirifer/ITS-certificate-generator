@@ -70,7 +70,9 @@ export class AttendanceComponent implements AfterViewInit {
   initializeApprovalForm() {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
     this.signatories = Array.from({ length: num }, (_, i) => i);
-    const group: any = {};
+    const group: any = {
+      creatorName: ['', Validators.required] 
+    };
     this.signatories.forEach(index => {
       group[`approverName${index}`] = ['', Validators.required];
       group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
@@ -102,6 +104,8 @@ export class AttendanceComponent implements AfterViewInit {
       formData.append('signatory2Name', cert.signatory2Name || '');
       formData.append('signatory2Role', cert.signatory2Role || '');
       formData.append('certificatePng', blob, 'certificate.png');
+      formData.append('creator_name', this.approvalForm.value.creatorName);
+      formData.append('certificate_type', 'Perfect Attendance');
 
       this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
