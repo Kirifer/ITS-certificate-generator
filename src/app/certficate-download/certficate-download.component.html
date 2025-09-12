@@ -18,8 +18,8 @@
       <tbody>
         <tr *ngFor="let cert of certificates" class="border-b hover:bg-blue-50 transition">
           <td class="py-3 px-4">{{ cert.name }}</td>
-           <td class="py-3 px-4">{{ cert.creator }}</td>
-          <td class="py-3 px-4">{{ cert.certificate }}</td>
+          <td class="py-3 px-4">{{ cert.creator }}</td>
+          <td class="py-3 px-4">{{ cert.certificateType }}</td>
           <td class="py-3 px-4">{{ cert.status }}</td>
           <td class="py-3 px-4 text-center">
             <button title="Download Certificate"
@@ -56,7 +56,8 @@
       </div>
 
       <div class="flex justify-center mt-4">
-        <button (click)="downloadSelectedCert()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+        <button (click)="downloadSelectedCert('pdf')" 
+                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
           Download as PDF
         </button>
       </div>

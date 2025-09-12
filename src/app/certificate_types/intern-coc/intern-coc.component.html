@@ -193,6 +193,15 @@
           </div>
         </div>
 
+        <!-- Creator Name -->
+          <div class="form-group">
+            <label>Creator Name*</label>
+            <input type="text" formControlName="creatorName" />
+            <div *ngIf="approvalForm.get('creatorName')?.invalid && approvalForm.get('creatorName')?.touched" class="error">
+              Creator name is required.
+            </div>
+          </div>
+
         <div class="modal-actions">
           <button type="submit" class="btn btn-req">Submit for Approval</button>
           <button type="button" (click)="closeCertificatePreview()" class="btn close-btn">Close</button>

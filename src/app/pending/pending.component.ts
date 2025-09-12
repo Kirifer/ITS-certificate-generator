@@ -18,8 +18,6 @@ export class PendingComponent implements OnInit {
   selectedCert: any = null;
 
   signaturePreview: string | ArrayBuffer | null = null;
-
-  // Signature starting position (adjusted for lower part of the certificate)
   signaturePosition = {  x: 500, y: 420  };
   signatureSize = { width: 160, height: 60 };
 
@@ -50,8 +48,6 @@ export class PendingComponent implements OnInit {
     const filename = fullPath.split('\\').pop()?.split('/').pop();
     this.selectedCert.png_path = `uploads/${filename}`;
     this.showModal = true;
-
-    // Reset signature position and preview if needed
     this.signaturePosition = { x: 440, y: 880 }; 
     this.signatureSize = { width: 160, height: 60 };
     this.signaturePreview = null;
@@ -106,36 +102,30 @@ export class PendingComponent implements OnInit {
   if (file && this.certificateContainer?.nativeElement) {
     const reader = new FileReader();
     reader.onload = () => {
-      this.signaturePreview = reader.result;
+      const img = new Image();
+      img.onload = () => {
+        this.signaturePreview = reader.result;
 
-      // Set default size (adjust as needed)
-      this.signatureSize = {
-        width: 280, 
-        height: 360  
-      };
-
-      setTimeout(() => {
         const certEl = this.certificateContainer.nativeElement.querySelector('img');
         if (certEl) {
           const certWidth = certEl.clientWidth;
           const certHeight = certEl.clientHeight;
+          const maxSignatureWidth = certWidth * 0.2;
+          const aspectRatio = img.width / img.height;
 
-          const signatureWidth = this.signatureSize.width;
-          const signatureHeight = this.signatureSize.height;
-
-          // Center the signature horizontally and near bottom
+          this.signatureSize.width = maxSignatureWidth;
+          this.signatureSize.height = maxSignatureWidth / aspectRatio;
           this.signaturePosition = {
-            x: (certWidth - signatureWidth) / 2,
-            y: certHeight - signatureHeight - 40
+            x: (certWidth - this.signatureSize.width) / 2,
+            y: certHeight - this.signatureSize.height - 40
           };
         }
-      }, 100);
+      };
+      img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
   }
 }
-
-
 
   startDrag(event: MouseEvent) {
     if ((event.target as HTMLElement).classList.contains('cursor-se-resize')) return;

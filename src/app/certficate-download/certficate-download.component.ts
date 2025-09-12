@@ -31,6 +31,7 @@ export class CertificateDownloadComponent implements OnInit {
             name: cert.rname,
             creator: cert.creator_name,
             certificate: 'Certificate',
+            certificateType: cert.certificate_type || 'Certificate',
             status: cert.status,
             imageUrl: `http://localhost:4000/${cert.png_path}`
           }));
@@ -49,24 +50,47 @@ export class CertificateDownloadComponent implements OnInit {
     this.selectedCert = null;
   }
 
-  downloadSelectedCert() {
-    if (!this.selectedCert || !this.selectedCert.imageUrl) return;
+  downloadSelectedCert(format: 'pdf' | 'png' = 'pdf') {
+  if (!this.selectedCert || !this.selectedCert.imageUrl) return;
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = this.selectedCert.imageUrl;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = this.selectedCert.imageUrl;
 
-    img.onload = () => {
-      const pdf = new jsPDF('landscape', 'pt', [img.width, img.height]);
-      pdf.addImage(img, 'PNG', 0, 0, img.width, img.height);
+  img.onload = () => {
+    const imgWidth = img.width;
+    const imgHeight = img.height;
+    const aspectRatio = imgWidth / imgHeight;
+
+    if (format === 'pdf') {
+      //  PDF Export 
+      const pdf = new jsPDF('landscape', 'pt', 'letter');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      let renderWidth = pageWidth;
+      let renderHeight = pageWidth / aspectRatio;
+
+      if (renderHeight > pageHeight) {
+        renderHeight = pageHeight;
+        renderWidth = pageHeight * aspectRatio;
+      }
+
+      const x = (pageWidth - renderWidth) / 2;
+      const y = (pageHeight - renderHeight) / 2;
+
+      pdf.addImage(img, 'PNG', x, y, renderWidth, renderHeight);
       pdf.save(`certificate-${this.selectedCert.name}.pdf`);
-      this.closeModal();
-    };
+    } 
+    
 
-    img.onerror = (err) => {
-      console.error('Failed to load image for PDF', err);
-    };
-  }
+    this.closeModal();
+  };
+
+  img.onerror = (err) => {
+    console.error('Failed to load image for export', err);
+  };
+}
 
 
 removeCertificate(cert: any) {

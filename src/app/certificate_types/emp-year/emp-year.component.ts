@@ -101,6 +101,7 @@ export class EmpYearComponent implements AfterViewInit {
       formData.append('signatory2Name', cert.signatory2Name || '');
       formData.append('signatory2Role', cert.signatory2Role || '');
       formData.append('creator_name', this.approvalForm.value.creatorName);
+      formData.append('certificate_type', 'Employee of the Year');
 
       // Certificate PNG
       formData.append('certificatePng', blob, 'certificate.png');
