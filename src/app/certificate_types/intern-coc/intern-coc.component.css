@@ -240,6 +240,30 @@
   margin: 0 auto;
 }
 
+.company-header {
+  display: flex;
+  justify-content: flex-end;   
+  align-items: center;
+  gap: 12px;                  
+  margin-bottom: 20px;       
+  text-align: right;
+}
+
+.company-logo {
+  width: 75px;
+  height: auto;
+}
+
+.company-name {
+  font-size: 27px;
+  font-weight: 800;
+  color: #000;
+  font-family: "Arial Rounded MT Bold", sans-serif;
+  white-space: nowrap;
+}
+
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .editor-preview-container {
