@@ -93,10 +93,86 @@ app.post('/api/auth/login', (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: user.id, username: user.username, email: user.email, role: user.role }
+      user: { id: user.id, username: user.username, email: user.email, role: user.role, image: user.image ? user.image : null}
     });
   });
 });
+
+// Update Profile
+app.put('/api/auth/update', upload.single('image'), async (req, res) => {
+  try {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'yoursecretkey');
+    } catch (err) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const userId = decoded.id;
+    const { username, email, newPassword } = req.body;
+    let updateFields = [];
+    let values = [];
+
+    if (username) {
+      updateFields.push('username = ?');
+      values.push(username);
+    }
+
+    if (email) {
+      updateFields.push('email = ?');
+      values.push(email);
+    }
+
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      updateFields.push('password = ?');
+      values.push(hashedPassword);
+    }
+
+    if (req.file) {
+      const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
+      updateFields.push('image = ?');
+      values.push(imagePath);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ message: 'No fields to update' });
+    }
+
+    values.push(userId);
+
+    const sql = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+    db.query(sql, values, (err) => {
+      if (err) {
+        console.error('Update error:', err);
+        return res.status(500).json({ message: 'Failed to update profile' });
+      }
+
+      db.query(
+        'SELECT id, username, email, role, image FROM users WHERE id = ?',
+        [userId],
+        (err, results) => {
+          if (err || results.length === 0) {
+            return res.status(500).json({ message: 'Failed to fetch updated profile' });
+          }
+
+          const updatedUser = results[0];
+          res.json({
+            message: 'Profile updated successfully',
+            user: updatedUser
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 /* CERTIFICATES */
 

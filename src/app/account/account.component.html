@@ -29,28 +29,20 @@
         <p>{{ profileForm.get('role')?.value }}</p>
       </div>
 
-      <div class="section">
-        <label>Password</label>
-        <div class="row">
-
-          <button type="button" class="EmailB" (click)="togglePasswordVisibility()">
-            {{ showPassword ? 'Hide' : 'Show' }}
-          </button>
-        </div>
-      </div>
-
       <div class="section" style="margin-top:60px">
-        <div class="row">
-          <button type="button" class="LogoutB" (click)="logout()">Log out</button>
-          <button type="button" class="danger" (click)="deleteAccount()">Delete my account</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <button type="button" class="save" (click)="editMode = true">
+        <button type="button" class="save" (click)="toggleEdit()" style="margin-right: 10px;">
           Edit Profile
         </button>
+        <button type="button" class="danger" (click)="deleteAccount()">Delete my account</button>
       </div>
+  
+      <div class="section" >
+        <div class="row">       
+          <button type="button" class="LogoutB" (click)="logout()">Log out</button>
+        </div>
+      </div>
+
+      
     </ng-container>
 
     <!-- Edit Mode -->
