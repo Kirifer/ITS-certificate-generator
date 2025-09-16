@@ -17,6 +17,7 @@ export class AccountComponent implements OnInit {
   editMode = false;
   showPassword = false;
   imageUrl: string | null = null;
+  selectedFile: File | null = null; // ✅ hold new image file
 
   constructor(
     private fb: FormBuilder,
@@ -27,7 +28,8 @@ export class AccountComponent implements OnInit {
       username: [{ value: '', disabled: true }, Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       role: [{ value: '', disabled: true }],
-      password: [{ value: '', disabled: true }]
+      password: [{ value: '', disabled: true }],
+      newPassword: ['']
     });
   }
 
@@ -50,7 +52,7 @@ export class AccountComponent implements OnInit {
         role: user.role ?? '',
         password: user.password ? '*******' : ''
       });
-      this.imageUrl = user.image ?? null;
+      this.imageUrl = user.image ? `http://localhost:4000/${user.image}` : null;
     } catch (error) {
       console.error('Error parsing user data:', error);
       this.router.navigate(['/login']);
@@ -59,11 +61,17 @@ export class AccountComponent implements OnInit {
 
   toggleEdit() {
     this.editMode = !this.editMode;
-    ['username', 'email', 'role'].forEach(control => {
+    ['username', 'email'].forEach(control => {
       const formControl = this.profileForm.get(control);
       if (this.editMode) formControl?.enable();
       else formControl?.disable();
     });
+
+    if (this.editMode) {
+      this.profileForm.get('newPassword')?.enable();
+    } else {
+      this.profileForm.get('newPassword')?.disable();
+    }
   }
 
   togglePasswordVisibility() {
@@ -80,6 +88,7 @@ export class AccountComponent implements OnInit {
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
+      this.selectedFile = file;
       const reader = new FileReader();
       reader.onload = () => {
         this.imageUrl = reader.result as string;
@@ -95,33 +104,45 @@ export class AccountComponent implements OnInit {
   }
 
   saveProfile() {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  const body: any = {
-    username: this.profileForm.value.username,
-    email: this.profileForm.value.email
-  };
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const formData = new FormData();
 
-  if (this.profileForm.value.newPassword) {
-    body.newPassword = this.profileForm.value.newPassword;
+    formData.append('username', this.profileForm.get('username')?.value);
+    formData.append('email', this.profileForm.get('email')?.value);
+
+    if (this.profileForm.get('newPassword')?.value) {
+      formData.append('newPassword', this.profileForm.get('newPassword')?.value);
+    }
+
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+    }
+
+    this.http.put('http://localhost:4000/api/auth/update', formData, { headers }).subscribe({
+      next: (res: any) => {
+        alert('Profile updated successfully!');
+
+        if (res.user) {
+          localStorage.setItem('user', JSON.stringify(res.user));
+        }
+
+        this.editMode = false;
+        this.loadUserInfo();
+      },
+      error: (err) => {
+        console.error('Failed to update profile:', err);
+        alert('Failed to update profile.');
+      }
+    });
   }
 
-  this.http.put('http://localhost:4000/api/auth/update', body, { headers }).subscribe({
-    next: (res: any) => {
-      alert('Profile updated successfully!');
-      // Refresh the account info from server
-      this.loadUserInfo();
-    },
-    error: (err) => console.error('Failed to update profile:', err)
-  });
-}
-
-cancelEdit() {
-  this.editMode = false;
-  this.loadUserInfo(); // reload the correct info from server
-}
+  cancelEdit() {
+    this.editMode = false;
+    this.loadUserInfo();
+  }
 
   deleteAccount() {
     const token = localStorage.getItem('token');
@@ -132,7 +153,7 @@ cancelEdit() {
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.http.delete('http://localhost:4000/api/user/delete', { headers }).subscribe({
-      next: (res) => {
+      next: () => {
         alert('Your account has been deleted.');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
