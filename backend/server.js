@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const EmailJS = require('@emailjs/nodejs'); 
 
 const app = express();
 
@@ -94,10 +93,12 @@ app.post('/api/auth/login', (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: user.id, username: user.username, email: user.email, role: user.role, image: user.image ? user.image : null}
+      user: { id: user.id, username: user.username, email: user.email, role: user.role, image: user.image ? user.image : null }
     });
   });
 });
+
+// Reset password
 app.post('/api/auth/reset-password', async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -111,7 +112,6 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
     try {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-
       db.query(
         'UPDATE users SET password = ? WHERE email = ?',
         [hashedPassword, email],
@@ -127,7 +127,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   });
 });
 
-// Update Profile
+// Update profile
 app.put('/api/auth/update', upload.single('image'), async (req, res) => {
   try {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -145,63 +145,35 @@ app.put('/api/auth/update', upload.single('image'), async (req, res) => {
     let updateFields = [];
     let values = [];
 
-    if (username) {
-      updateFields.push('username = ?');
-      values.push(username);
-    }
-
-    if (email) {
-      updateFields.push('email = ?');
-      values.push(email);
-    }
-
-    if (newPassword) {
+    if (username) { updateFields.push('username = ?'); values.push(username); }
+    if (email) { updateFields.push('email = ?'); values.push(email); }
+    if (newPassword) { 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      updateFields.push('password = ?');
-      values.push(hashedPassword);
+      updateFields.push('password = ?'); 
+      values.push(hashedPassword); 
     }
-
     if (req.file) {
       const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
-      updateFields.push('image = ?');
+      updateFields.push('image = ?'); 
       values.push(imagePath);
     }
 
-    if (updateFields.length === 0) {
-      return res.status(400).json({ message: 'No fields to update' });
-    }
+    if (updateFields.length === 0) return res.status(400).json({ message: 'No fields to update' });
 
     values.push(userId);
-
     const sql = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
     db.query(sql, values, (err) => {
-      if (err) {
-        console.error('Update error:', err);
-        return res.status(500).json({ message: 'Failed to update profile' });
-      }
-
-      db.query(
-        'SELECT id, username, email, role, image FROM users WHERE id = ?',
-        [userId],
-        (err, results) => {
-          if (err || results.length === 0) {
-            return res.status(500).json({ message: 'Failed to fetch updated profile' });
-          }
-
-          const updatedUser = results[0];
-          res.json({
-            message: 'Profile updated successfully',
-            user: updatedUser
-          });
-        }
-      );
+      if (err) return res.status(500).json({ message: 'Failed to update profile' });
+      db.query('SELECT id, username, email, role, image FROM users WHERE id = ?', [userId], (err, results) => {
+        if (err || results.length === 0) return res.status(500).json({ message: 'Failed to fetch updated profile' });
+        res.json({ message: 'Profile updated successfully', user: results[0] });
+      });
     });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 /* CERTIFICATES */
 
@@ -216,7 +188,6 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), async (re
     signatory2Name,
     signatory2Role,
     creator_name,
-    creator_email,
     certificate_type
   } = req.body;
 
@@ -241,7 +212,6 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), async (re
      signatory2_name, signatory2_role, png_path, approval_signatories, creator_name, status, certificate_type)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
   `;
-
   const values = [
     recipientName,
     issueDate,
@@ -256,53 +226,16 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), async (re
     certificate_type || null
   ];
 
-  db.query(sql, values, async (err) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ message: 'Failed to save certificate' });
-    }
-
-    try {
-      // Create EmailJS client
-      const client = new EmailJS.Client({
-        publicKey: process.env.EMAILJS_PUBLIC_KEY
-      });
-
-      // Send emails to approvers
-      await Promise.all(
-        approvalSignatories.map(approver => {
-          if (!approver.email) return;
-          return client.send(
-            process.env.EMAILJS_SERVICE_ID,
-            process.env.EMAILJS_TEMPLATE_ID,
-            {
-              to_email: approver.email,
-              to_name: approver.name,
-              recipient_name: recipientName,
-              certificate_type: certificate_type || 'N/A',
-              creator_name: creator_name,
-              creator_email: creator_email || 'no-reply@outlook.com'
-            }
-          );
-        })
-      );
-
-      res.status(201).json({ message: 'Certificate saved and emails sent successfully' });
-    } catch (emailErr) {
-      console.error('EmailJS error:', emailErr);
-      res.status(500).json({ message: 'Certificate saved but failed to send emails' });
-    }
+  db.query(sql, values, (err) => {
+    if (err) return res.status(500).json({ message: 'Failed to save certificate' });
+    res.status(201).json({ message: 'Certificate saved successfully' });
   });
 });
 
-
-
-// Get pending
+// Get pending certificates
 app.get('/api/pending-certificates', (req, res) => {
   const userEmail = req.query.email;
-  if (!userEmail) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
+  if (!userEmail) return res.status(400).json({ message: 'Email is required' });
 
   const sql = `
     SELECT 
@@ -324,12 +257,8 @@ app.get('/api/pending-certificates', (req, res) => {
   `;
 
   db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ message: 'Failed to fetch certificates' });
-    }
+    if (err) return res.status(500).json({ message: 'Failed to fetch certificates' });
 
-    // Filter by approval_signatories JSON
     const filtered = results.filter(cert => {
       try {
         const signatories = JSON.parse(cert.approval_signatories || '[]');
@@ -388,10 +317,7 @@ app.post('/api/pending-cert_coc', upload.single('certificatePng'), (req, res) =>
     JSON.stringify(approvalSignatories),
     creator_name
   ], (err) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ message: 'Failed to save certificate' });
-    }
+    if (err) return res.status(500).json({ message: 'Failed to save certificate' });
     res.status(201).json({ message: 'Certificate saved successfully' });
   });
 });
@@ -401,10 +327,7 @@ app.post('/api/pending-certificates/:id/reject', (req, res) => {
   const certId = req.params.id;
   const sql = `UPDATE pending_certificates SET status = 'rejected' WHERE id = ?`;
   db.query(sql, [certId], err => {
-    if (err) {
-      console.error('Rejection error:', err);
-      return res.status(500).json({ message: 'Rejection failed' });
-    }
+    if (err) return res.status(500).json({ message: 'Rejection failed' });
     res.json({ message: 'Certificate rejected' });
   });
 });
@@ -412,17 +335,12 @@ app.post('/api/pending-certificates/:id/reject', (req, res) => {
 // Approve certificate
 app.post('/api/approve-certificate-with-signature', upload.single('certificatePng'), (req, res) => {
   const certId = req.body.id;
-  if (!req.file || !certId) {
-    return res.status(400).json({ message: 'Missing file or certificate ID' });
-  }
+  if (!req.file || !certId) return res.status(400).json({ message: 'Missing file or certificate ID' });
 
   const newPath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
 
   db.query('SELECT * FROM pending_certificates WHERE id = ?', [certId], (err, results) => {
-    if (err || results.length === 0) {
-      console.error('Certificate not found:', err);
-      return res.status(500).json({ message: 'Certificate not found' });
-    }
+    if (err || results.length === 0) return res.status(500).json({ message: 'Certificate not found' });
 
     const cert = results[0];
     const approvalSignatories = typeof cert.approval_signatories === 'string'
@@ -449,10 +367,7 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
       approvalSignatories,
       cert.certificate_type || 'Employee of the Year'
     ], (err, result) => {
-      if (err) {
-        console.error('Insert failed:', err);
-        return res.status(500).json({ message: 'Insert failed' });
-      }
+      if (err) return res.status(500).json({ message: 'Insert failed' });
 
       db.query('DELETE FROM pending_certificates WHERE id = ?', [certId], (err) => {
         if (err) return res.status(500).json({ message: 'Cleanup failed' });
@@ -468,35 +383,24 @@ app.delete('/api/approved-certificates/:id', (req, res) => {
 
   const selectSql = 'SELECT png_path FROM approved_certificates WHERE id = ?';
   db.query(selectSql, [certId], (err, results) => {
-    if (err) {
-      console.error('Select failed:', err);
-      return res.status(500).json({ message: 'Database error' });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Certificate not found' });
-    }
+    if (err) return res.status(500).json({ message: 'Database error' });
+    if (results.length === 0) return res.status(404).json({ message: 'Certificate not found' });
 
     const imagePath = path.join(__dirname, results[0].png_path);
 
     const deleteSql = 'DELETE FROM approved_certificates WHERE id = ?';
     db.query(deleteSql, [certId], (err) => {
-      if (err) {
-        console.error('Delete failed:', err);
-        return res.status(500).json({ message: 'Failed to delete certificate from DB' });
-      }
+      if (err) return res.status(500).json({ message: 'Failed to delete certificate from DB' });
 
       fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.warn('Image file not deleted or missing:', err.message);
-        }
+        if (err) console.warn('Image file not deleted or missing:', err.message);
         return res.status(200).json({ message: 'Certificate deleted successfully' });
       });
     });
   });
 });
 
-// Get approved
+// Get approved certificates
 app.get('/api/approved-certificates', (req, res) => {
   const sql = `
     SELECT 
@@ -513,39 +417,10 @@ app.get('/api/approved-certificates', (req, res) => {
   `;
 
   db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Database fetch failed:', err);
-      return res.status(500).json({ message: 'Failed to fetch approved certificates' });
-    }
+    if (err) return res.status(500).json({ message: 'Failed to fetch approved certificates' });
     res.json(results);
   });
 });
-
-// // Gmail OAuth2 setup
-// const oAuth2Client = new google.auth.OAuth2(
-//   process.env.GMAIL_CLIENT_ID,
-//   process.env.GMAIL_CLIENT_SECRET,
-//   'https://developers.google.com/oauthplayground' // redirect URI for refresh token
-// );
-
-// oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
-
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     type: 'OAuth2',
-//     user: process.env.GMAIL_EMAIL,
-//     clientId: process.env.GMAIL_CLIENT_ID,
-//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
-//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-//     accessToken: async () => {
-//       const res = await oAuth2Client.getAccessToken();
-//       return res.token;
-//     }
-//   }
-// });
-
-
 
 /* START SERVER */
 const PORT = process.env.PORT || 4000;

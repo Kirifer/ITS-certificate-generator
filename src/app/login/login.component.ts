@@ -21,11 +21,21 @@ export class LoginComponent {
     private router: Router,
     private authService: AuthService
   ) {
+    // Initialize form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       remember: [false]
     });
+
+    // Prefill email for remember me function
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+      this.loginForm.patchValue({
+        email: rememberedUser,
+        remember: true
+      });
+    }
   }
 
   public get email() {
@@ -50,12 +60,24 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
         console.log('Login successful:', res);
+
+        // Choose storage based on remember me function
+        const storage = this.loginForm.value.remember ? localStorage : sessionStorage;
+
         if (res.token) {
-          localStorage.setItem('token', res.token);
+          storage.setItem('token', res.token);
         }
         if (res.user) {
-          localStorage.setItem('user', JSON.stringify(res.user));
+          storage.setItem('user', JSON.stringify(res.user));
         }
+
+        // Remember me function
+        if (this.loginForm.value.remember) {
+          localStorage.setItem('rememberedUser', this.loginForm.value.email);
+        } else {
+          localStorage.removeItem('rememberedUser');
+        }
+
         alert(res.message || 'Login successful!');
         this.router.navigate(['/']);
       },
@@ -83,8 +105,8 @@ export class LoginComponent {
     this.router.navigate(['/register']);
   }
 
-goToForgotPassword(event: Event): void {
-  event.preventDefault();
-  this.router.navigate(['/reset-password']);
-}
+  goToForgotPassword(event: Event): void {
+    event.preventDefault();
+    this.router.navigate(['/reset-password']);
+  }
 }

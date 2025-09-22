@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-emp-year',
@@ -64,9 +65,7 @@ export class EmpYearComponent implements AfterViewInit {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
     this.signatories = Array.from({ length: num }, (_, i) => i);
 
-    const group: any = {
-      creatorName: ['', Validators.required] 
-    };
+    const group: any = { creatorName: ['', Validators.required] };
 
     this.signatories.forEach(index => {
       group[`approverName${index}`] = ['', Validators.required];
@@ -83,16 +82,16 @@ export class EmpYearComponent implements AfterViewInit {
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 300)); // Ensure DOM rendered
-
+      // Capture certificate as PNG
+      await new Promise(resolve => setTimeout(resolve, 300));
       const canvas = await html2canvas(this.modalCertificate.nativeElement, { scale: 2 });
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('Failed to generate certificate PNG');
 
-      const formData = new FormData();
       const cert = this.certificateForm.value;
 
-      // Certificate details
+      // Prepare FormData for backend
+      const formData = new FormData();
       formData.append('recipientName', cert.recipientName);
       formData.append('issueDate', cert.issueDate);
       formData.append('numberOfSignatories', cert.numberOfSignatories);
@@ -102,22 +101,44 @@ export class EmpYearComponent implements AfterViewInit {
       formData.append('signatory2Role', cert.signatory2Role || '');
       formData.append('creator_name', this.approvalForm.value.creatorName);
       formData.append('certificate_type', 'Employee of the Year');
-
-      // Certificate PNG
       formData.append('certificatePng', blob, 'certificate.png');
 
-      // Approvers
+      // Append approvers dynamically
       this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
+      // Save to backend
       await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
-      alert('Certificate request sent successfully!');
+
+      // Send approval emails via EmailJS
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          certificate_type: 'Employee of the Year',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',    
+          'template_684vrld',     
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate saved and approval emails sent successfully!');
       this.closeCertificatePreview();
+
     } catch (err) {
-      console.error('Error submitting certificate:', err);
-      alert('Failed to send request.');
+      console.error('Error submitting certificate or sending emails:', err);
+      alert('Failed to submit certificate or send emails.');
     }
   }
 
