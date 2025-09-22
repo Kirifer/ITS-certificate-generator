@@ -58,32 +58,35 @@
       <i class="fa-solid fa-hourglass-half"></i>
       PENDING FOR APPROVAL
     </h3>
-
-    <table class="table-fixed w-full bg-blue-100 rounded-md overflow-hidden">
-      <thead class="bg-blue-300 text-white">
+  </div>
+  <div class="overflow-x-auto rounded-lg shadow-md">
+    <table class="min-w-full bg-white rounded-lg text-gray-800 text-sm">
+      <thead class="bg-yellow-200 text-yellow-900">
         <tr>
-          <th class="text-left p-2 text-xl">NAME</th>
-          <th class="text-left p-2 text-xl">CERTIFICATE</th>
-          <th class="text-left p-2 text-xl">REFERENCE NO.</th>
+          <th class="py-3 px-4 text-left font-semibold">Recipient</th>
+          <th class="py-3 px-4 text-left font-semibold">Creator</th>
+          <th class="py-3 px-4 text-left font-semibold">Signatory 1</th>
+          <th class="py-3 px-4 text-left font-semibold">Signatory 2</th>
+          <th class="py-3 px-4 text-left font-semibold">Issue Date</th>
+          <th class="py-3 px-4 text-left font-semibold">Status</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr class="border-b border-blue-200">
-          <td class="p-2">Syantik Syantik</td>
-          <td class="p-2">Certificate of Recognition</td>
-          <td class="p-2">123456789</td>
-        </tr>
-        <tr>
-          <td class="p-2">Henry B</td>
-          <td class="p-2">Certificate of Appreciation</td>
-          <td class="p-2">123456789</td>
+        <tr *ngFor="let cert of pendingCertificates.slice(0, 5)" class="border-b hover:bg-yellow-50 transition">
+          <td class="py-3 px-4">{{ cert.rname }}</td>
+          <td class="py-3 px-4">{{ cert.creator_name }}</td>
+          <td class="py-3 px-4">{{ cert.signatory1_name }}</td>
+          <td class="py-3 px-4">{{ cert.signatory2_name }}</td>
+          <td class="py-3 px-4">{{ cert.issue_date }}</td>
+          <td class="py-3 px-4 capitalize">{{ cert.status }}</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <div class="flex justify-end">
-    <a href="#">
+    <a [routerLink]="'/pending'">
       <img src="images/more.png" alt="icon" class="h-6 mt-4">
     </a>
   </div>
@@ -94,42 +97,33 @@
       <i class="fa-solid fa-square-check"></i>
       APPROVED CERTIFICATES
     </h3>
+  </div>
 
-    <table class="table-fixed w-full bg-blue-100 rounded-md overflow-hidden">
-      <thead class="bg-blue-300 text-white">
-        <tr>
-          <th class="text-left p-2 text-xl">NAME</th>
-          <th class="text-left p-2 text-xl">CERTIFICATE</th>
-          <th class="text-left p-2"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="border-b border-blue-200">
-          <td class="p-2">Henry C</td>
-          <td class="p-2">Certificate of Internship</td>
-          <td class="p-2 pl-24">
-            <a href="#" class="text-blue-600 hover:underline">
-              <img src="images/download.png" alt="icon" class="h-6">
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="p-2">Henry D</td>
-          <td class="p-2">Employee of the Month</td>
-          <td class="p-2 pl-24">
-            <a href="#" class="text-blue-600 hover:underline">
-              <img src="images/download.png" alt="icon" class="h-6">
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto rounded-lg shadow-md">
+      <table class="min-w-full bg-white rounded-lg text-gray-800 text-sm">
+        <thead class="bg-blue-200 text-blue-900">
+          <tr>
+            <th class="py-3 px-4 text-left font-semibold">Recipient</th>
+            <th class="py-2 px-2 text-left font-semibold">Creator</th>
+            <th class="py-3 px-4 text-left font-semibold">Certificate</th>
+            <th class="py-3 px-4 text-left font-semibold">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let cert of certificates.slice(0, 5)" class="border-b hover:bg-blue-50 transition">
+            <td class="py-3 px-4">{{ cert.name }}</td>
+            <td class="py-3 px-4">{{ cert.creator }}</td>
+            <td class="py-3 px-4">{{ cert.certificateType }}</td>
+            <td class="py-3 px-4">{{ cert.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="flex justify-end">
-      <a href="#">
+      <a [routerLink]="'/downloads'">
         <img src="images/more.png" alt="icon" class="h-6 mt-4">
       </a>
     </div>
-
-  </div>
 </body>

@@ -228,6 +228,11 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
 
 // Get pending
 app.get('/api/pending-certificates', (req, res) => {
+  const userEmail = req.query.email;
+  if (!userEmail) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
   const sql = `
     SELECT 
       id,
@@ -252,7 +257,18 @@ app.get('/api/pending-certificates', (req, res) => {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Failed to fetch certificates' });
     }
-    res.json(results);
+
+    // Filter by approval_signatories JSON
+    const filtered = results.filter(cert => {
+      try {
+        const signatories = JSON.parse(cert.approval_signatories || '[]');
+        return signatories.some(s => s.email?.toLowerCase() === userEmail.toLowerCase());
+      } catch (e) {
+        return false;
+      }
+    });
+
+    res.json(filtered);
   });
 });
 

@@ -19,6 +19,9 @@ import { GuestSpeakComponent } from './certificate_types/guest-speak/guest-speak
 import { InternCocComponent } from './certificate_types/intern-coc/intern-coc.component';
 import { PendingComponent } from './pending/pending.component';
 import { InternsCertComponent } from './interns-cert/interns-cert.component';
+import { BestOjtComponent } from './certificate_types/best-ojt/best-ojt.component';
+import { CosSalaryComponent } from './certificate_types/cos-salary/cos-salary.component';
+import { CompanyDocsComponent } from './company-docs/company-docs.component';
 
 export const routes: Routes = [
     { path: 'certificates', component: CertificateComponent },
@@ -46,5 +49,8 @@ export const routes: Routes = [
     { path: 'intern-coc', component: InternCocComponent },
     { path: 'account', component: AccountComponent },
     { path: 'pending', component: PendingComponent },
-    { path: 'intern-certs', component: InternsCertComponent}
+    { path: 'intern-certs', component: InternsCertComponent},
+    { path: 'best-projects', component: BestOjtComponent},
+    { path: 'cos-salary', component: CosSalaryComponent},
+    {path: 'company-documents', component: CompanyDocsComponent}
 ];

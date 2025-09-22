@@ -122,7 +122,7 @@ export class InternCocComponent implements AfterViewInit {
   }
 
   goBack() {
-    this.router.navigate(['/certificates']);
+    this.router.navigate(['/company-documents']);
   }
 
   openCertificatePreview() {

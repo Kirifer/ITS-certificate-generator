@@ -18,28 +18,45 @@ export class PendingComponent implements OnInit {
   selectedCert: any = null;
 
   signaturePreview: string | ArrayBuffer | null = null;
-  signaturePosition = {  x: 500, y: 420  };
+  signaturePosition = { x: 500, y: 420 };
   signatureSize = { width: 160, height: 60 };
 
   dragging = false;
   resizing = false;
   offset = { x: 0, y: 0 };
 
+  // Role-based access
+  accessDenied = false;
+  userRole: string = '';
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.fetchPendingCertificates();
+    // Load user role from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.userRole = (user.role || '').toLowerCase();
+
+    // Restrict access if not approval_authority or both
+    if (this.userRole !== 'approval_authority' && this.userRole !== 'both') {
+      this.accessDenied = true;
+    } else {
+      this.fetchPendingCertificates();
+    }
   }
 
   fetchPendingCertificates() {
-    this.http.get<any[]>('http://localhost:4000/api/pending-certificates').subscribe({
-      next: (data) => {
-        this.pendingCertificates = data;
-      },
-      error: (err) => {
-        console.error('Error fetching certificates:', err);
-      }
-    });
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email;
+
+    this.http.get<any[]>(`http://localhost:4000/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
+      .subscribe({
+        next: (data) => {
+          this.pendingCertificates = data;
+        },
+        error: (err) => {
+          console.error('Error fetching certificates:', err);
+        }
+      });
   }
 
   openModal(cert: any) {
@@ -48,7 +65,7 @@ export class PendingComponent implements OnInit {
     const filename = fullPath.split('\\').pop()?.split('/').pop();
     this.selectedCert.png_path = `uploads/${filename}`;
     this.showModal = true;
-    this.signaturePosition = { x: 440, y: 880 }; 
+    this.signaturePosition = { x: 440, y: 880 };
     this.signatureSize = { width: 160, height: 60 };
     this.signaturePreview = null;
   }
@@ -59,6 +76,11 @@ export class PendingComponent implements OnInit {
   }
 
   approveCert(cert: any) {
+    if (this.userRole !== 'approval_authority' && this.userRole !== 'both') {
+      alert('You are not authorized to approve certificates.');
+      return;
+    }
+
     html2canvas(this.certificateContainer.nativeElement, {
       allowTaint: true,
       useCORS: true,
@@ -88,6 +110,11 @@ export class PendingComponent implements OnInit {
   }
 
   rejectCert(cert: any) {
+    if (this.userRole !== 'approval_authority' && this.userRole !== 'both') {
+      alert('You are not authorized to reject certificates.');
+      return;
+    }
+
     this.http.post(`http://localhost:4000/api/pending-certificates/${cert.id}/reject`, {}).subscribe({
       next: () => {
         this.fetchPendingCertificates();
@@ -97,35 +124,35 @@ export class PendingComponent implements OnInit {
     });
   }
 
- onSignatureUpload(event: any) {
-  const file = event.target.files[0];
-  if (file && this.certificateContainer?.nativeElement) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        this.signaturePreview = reader.result;
+  onSignatureUpload(event: any) {
+    const file = event.target.files[0];
+    if (file && this.certificateContainer?.nativeElement) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          this.signaturePreview = reader.result;
 
-        const certEl = this.certificateContainer.nativeElement.querySelector('img');
-        if (certEl) {
-          const certWidth = certEl.clientWidth;
-          const certHeight = certEl.clientHeight;
-          const maxSignatureWidth = certWidth * 0.2;
-          const aspectRatio = img.width / img.height;
+          const certEl = this.certificateContainer.nativeElement.querySelector('img');
+          if (certEl) {
+            const certWidth = certEl.clientWidth;
+            const certHeight = certEl.clientHeight;
+            const maxSignatureWidth = certWidth * 0.2;
+            const aspectRatio = img.width / img.height;
 
-          this.signatureSize.width = maxSignatureWidth;
-          this.signatureSize.height = maxSignatureWidth / aspectRatio;
-          this.signaturePosition = {
-            x: (certWidth - this.signatureSize.width) / 2,
-            y: certHeight - this.signatureSize.height - 40
-          };
-        }
+            this.signatureSize.width = maxSignatureWidth;
+            this.signatureSize.height = maxSignatureWidth / aspectRatio;
+            this.signaturePosition = {
+              x: (certWidth - this.signatureSize.width) / 2,
+              y: certHeight - this.signatureSize.height - 40
+            };
+          }
+        };
+        img.src = reader.result as string;
       };
-      img.src = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    }
   }
-}
 
   startDrag(event: MouseEvent) {
     if ((event.target as HTMLElement).classList.contains('cursor-se-resize')) return;

@@ -1,4 +1,4 @@
-<main class="main-content p-6 w-full bg-gray-100 min-h-screen">
+<main class="main-content p-6 w-full bg-gray-100 min-h-screen" *ngIf="!accessDenied; else noAccess">
   <h2 class="text-center text-xl sm:text-2xl font-semibold text-blue-900 mb-6 tracking-wide uppercase">
     List of Approved Certificates
   </h2>
@@ -30,10 +30,10 @@
           </td>
           <td class="py-3 px-4 text-center">
             <button title="Remove Certificate"
-             (click)="removeCertificate(cert)"
+              (click)="removeCertificate(cert)"
               class="bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-md transition">
               <i class="fa fa-trash text-sm"></i>
-          </button>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -64,3 +64,12 @@
     </div>
   </div>
 </main>
+
+<!-- Access Denied Template -->
+<ng-template #noAccess>
+  <div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <p class="text-red-600 text-lg font-semibold">
+      You don’t have permission to view this page.
+    </p>
+  </div>
+</ng-template>

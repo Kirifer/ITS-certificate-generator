@@ -16,10 +16,23 @@ export class CertificateDownloadComponent implements OnInit {
   showModal = false;
   selectedCert: any;
 
+  // Role-based access
+  accessDenied = false;
+  userRole: string = '';
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.fetchApprovedCertificates();
+    // Get user info from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.userRole = (user.role || '').toLowerCase();
+
+    // Allow only certificate_editor or both
+    if (this.userRole !== 'certificate_editor' && this.userRole !== 'both') {
+      this.accessDenied = true;
+    } else {
+      this.fetchApprovedCertificates();
+    }
   }
 
   fetchApprovedCertificates() {
@@ -51,62 +64,78 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   downloadSelectedCert(format: 'pdf' | 'png' = 'pdf') {
-  if (!this.selectedCert || !this.selectedCert.imageUrl) return;
+    if (!this.selectedCert || !this.selectedCert.imageUrl) return;
 
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.src = this.selectedCert.imageUrl;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = this.selectedCert.imageUrl;
 
-  img.onload = () => {
-    const imgWidth = img.width;
-    const imgHeight = img.height;
-    const aspectRatio = imgWidth / imgHeight;
+    img.onload = () => {
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const aspectRatio = imgWidth / imgHeight;
 
-    if (format === 'pdf') {
-      //  PDF Export 
-      const pdf = new jsPDF('landscape', 'pt', 'letter');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      if (format === 'pdf') {
+        const portraitTypes = ['Certificate of Completion', 'Certificate of Service'];
+        const orientation = portraitTypes.includes(this.selectedCert.certificateType)
+          ? 'portrait'
+          : 'landscape';
 
-      let renderWidth = pageWidth;
-      let renderHeight = pageWidth / aspectRatio;
+        const pdf = new jsPDF(orientation, 'pt', 'letter');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-      if (renderHeight > pageHeight) {
-        renderHeight = pageHeight;
-        renderWidth = pageHeight * aspectRatio;
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+        let renderWidth = pageWidth;
+        let renderHeight = pageWidth / aspectRatio;
+
+        if (renderHeight > pageHeight) {
+          renderHeight = pageHeight;
+          renderWidth = pageHeight * aspectRatio;
+        }
+
+        const x = (pageWidth - renderWidth) / 2;
+        const y = (pageHeight - renderHeight) / 2;
+
+        pdf.addImage(img, 'PNG', x, y, renderWidth, renderHeight);
+        pdf.save(`certificate-${this.selectedCert.name}.pdf`);
+      } else if (format === 'png') {
+        const canvas = document.createElement('canvas');
+        canvas.width = imgWidth;
+        canvas.height = imgHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = `certificate-${this.selectedCert.name}.png`;
+          link.click();
+        }
       }
 
-      const x = (pageWidth - renderWidth) / 2;
-      const y = (pageHeight - renderHeight) / 2;
+      this.closeModal();
+    };
 
-      pdf.addImage(img, 'PNG', x, y, renderWidth, renderHeight);
-      pdf.save(`certificate-${this.selectedCert.name}.pdf`);
-    } 
-    
+    img.onerror = (err) => {
+      console.error('Failed to load image for export', err);
+    };
+  }
 
-    this.closeModal();
-  };
+  removeCertificate(cert: any) {
+    if (!confirm(`Are you sure you want to delete certificate for ${cert.name}?`)) return;
 
-  img.onerror = (err) => {
-    console.error('Failed to load image for export', err);
-  };
+    this.http.delete(`http://localhost:4000/api/approved-certificates/${cert.id}`)
+      .subscribe({
+        next: () => {
+          this.certificates = this.certificates.filter(c => c.id !== cert.id);
+          alert('Certificate deleted successfully.');
+        },
+        error: (err) => {
+          console.error('Failed to delete certificate:', err);
+          alert('Failed to delete certificate.');
+        }
+      });
+  }
 }
-
-
-removeCertificate(cert: any) {
-  if (!confirm(`Are you sure you want to delete certificate for ${cert.name}?`)) return;
-
-  this.http.delete(`http://localhost:4000/api/approved-certificates/${cert.id}`)
-    .subscribe({
-      next: () => {
-        this.certificates = this.certificates.filter(c => c.id !== cert.id);
-        alert('Certificate deleted successfully.');
-      },
-      error: (err) => {
-        console.error('Failed to delete certificate:', err);
-        alert('Failed to delete certificate.');
-      }
-    });
-}
-}
-
