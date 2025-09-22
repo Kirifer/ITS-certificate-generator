@@ -7,8 +7,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
+const EmailJS = require('@emailjs/nodejs'); 
 
 const app = express();
 
@@ -205,8 +204,9 @@ app.put('/api/auth/update', upload.single('image'), async (req, res) => {
 
 
 /* CERTIFICATES */
-// Save pending certificate
-app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res) => {
+
+// Save Pending Certificates
+app.post('/api/pending-certificates', upload.single('certificatePng'), async (req, res) => {
   const {
     recipientName,
     issueDate,
@@ -216,10 +216,10 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     signatory2Name,
     signatory2Role,
     creator_name,
+    creator_email,
     certificate_type
   } = req.body;
 
-  // Collect approvers
   const approvalSignatories = [];
   Object.keys(req.body).forEach(key => {
     if (key.startsWith('approverName')) {
@@ -231,7 +231,6 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     }
   });
 
-  // Validation
   if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !creator_name || !req.file) {
     return res.status(400).json({ message: 'All required fields must be provided' });
   }
@@ -257,46 +256,45 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     certificate_type || null
   ];
 
-  // Save to DB
-  db.query(sql, values, (err) => {
+  db.query(sql, values, async (err) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Failed to save certificate' });
     }
 
-    // Send Outlook email notifications to all approvers
-    approvalSignatories.forEach((approver) => {
-      if (approver.email) {
-        const mailOptions = {
-          from: process.env.GMAIL_EMAIL, 
-          to: approver.email,
-          subject: 'Certificate Approval Needed',
-          html: `
-            <p>Dear ${approver.name || 'Approver'},</p>
-            <p>You have a pending certificate request that requires your approval.</p>
-            <p><strong>Recipient:</strong> ${recipientName}</p>
-            <p><strong>Certificate Type:</strong> ${certificate_type || 'N/A'}</p>
-            <p><strong>Creator:</strong> ${creator_name}</p>
-            <p>Please log in to the system to approve or reject this request.</p>
-            <br/>
-            <p>Thank you,</p>
-            <p>IT Squarehub Certificate System</p>
-          `
-        };
+    try {
+      // Create EmailJS client
+      const client = new EmailJS.Client({
+        publicKey: process.env.EMAILJS_PUBLIC_KEY
+      });
 
-        transporter.sendMail(mailOptions, (err, info) => {
-          if (err) {
-            console.error(` Failed to send email to ${approver.email}:`, err);
-          } else {
-            console.log(` Email sent to ${approver.email}:`, info.response);
-          }
-        });
-      }
-    });
+      // Send emails to approvers
+      await Promise.all(
+        approvalSignatories.map(approver => {
+          if (!approver.email) return;
+          return client.send(
+            process.env.EMAILJS_SERVICE_ID,
+            process.env.EMAILJS_TEMPLATE_ID,
+            {
+              to_email: approver.email,
+              to_name: approver.name,
+              recipient_name: recipientName,
+              certificate_type: certificate_type || 'N/A',
+              creator_name: creator_name,
+              creator_email: creator_email || 'no-reply@outlook.com'
+            }
+          );
+        })
+      );
 
-    res.status(201).json({ message: 'Certificate saved and emails sent successfully' });
+      res.status(201).json({ message: 'Certificate saved and emails sent successfully' });
+    } catch (emailErr) {
+      console.error('EmailJS error:', emailErr);
+      res.status(500).json({ message: 'Certificate saved but failed to send emails' });
+    }
   });
 });
+
 
 
 // Get pending
@@ -523,29 +521,29 @@ app.get('/api/approved-certificates', (req, res) => {
   });
 });
 
-// Gmail OAuth2 setup
-const oAuth2Client = new google.auth.OAuth2(
-  process.env.GMAIL_CLIENT_ID,
-  process.env.GMAIL_CLIENT_SECRET,
-  'https://developers.google.com/oauthplayground' // redirect URI for refresh token
-);
+// // Gmail OAuth2 setup
+// const oAuth2Client = new google.auth.OAuth2(
+//   process.env.GMAIL_CLIENT_ID,
+//   process.env.GMAIL_CLIENT_SECRET,
+//   'https://developers.google.com/oauthplayground' // redirect URI for refresh token
+// );
 
-oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+// oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type: 'OAuth2',
-    user: process.env.GMAIL_EMAIL,
-    clientId: process.env.GMAIL_CLIENT_ID,
-    clientSecret: process.env.GMAIL_CLIENT_SECRET,
-    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-    accessToken: async () => {
-      const res = await oAuth2Client.getAccessToken();
-      return res.token;
-    }
-  }
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     type: 'OAuth2',
+//     user: process.env.GMAIL_EMAIL,
+//     clientId: process.env.GMAIL_CLIENT_ID,
+//     clientSecret: process.env.GMAIL_CLIENT_SECRET,
+//     refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+//     accessToken: async () => {
+//       const res = await oAuth2Client.getAccessToken();
+//       return res.token;
+//     }
+//   }
+// });
 
 
 
