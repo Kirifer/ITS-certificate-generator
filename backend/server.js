@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 
 const app = express();
 
@@ -97,6 +99,34 @@ app.post('/api/auth/login', (req, res) => {
     });
   });
 });
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: 'Email and new password are required' });
+  }
+
+  db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    if (results.length === 0) return res.status(404).json({ message: 'User not found with this email' });
+
+    try {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      db.query(
+        'UPDATE users SET password = ? WHERE email = ?',
+        [hashedPassword, email],
+        (err) => {
+          if (err) return res.status(500).json({ message: 'Error updating password' });
+          res.json({ message: 'Password updated successfully' });
+        }
+      );
+    } catch (error) {
+      console.error('Hashing error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+});
 
 // Update Profile
 app.put('/api/auth/update', upload.single('image'), async (req, res) => {
@@ -175,15 +205,21 @@ app.put('/api/auth/update', upload.single('image'), async (req, res) => {
 
 
 /* CERTIFICATES */
-
-// Save pending certificate (generic with certificate_type)
+// Save pending certificate
 app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res) => {
   const {
-    recipientName, issueDate, numberOfSignatories,
-    signatory1Name, signatory1Role, signatory2Name, signatory2Role,
-    creator_name, certificate_type
+    recipientName,
+    issueDate,
+    numberOfSignatories,
+    signatory1Name,
+    signatory1Role,
+    signatory2Name,
+    signatory2Role,
+    creator_name,
+    certificate_type
   } = req.body;
 
+  // Collect approvers
   const approvalSignatories = [];
   Object.keys(req.body).forEach(key => {
     if (key.startsWith('approverName')) {
@@ -195,8 +231,10 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     }
   });
 
-  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !creator_name || !req.file)
+  // Validation
+  if (!recipientName || !issueDate || !numberOfSignatories || !signatory1Name || !signatory1Role || !creator_name || !req.file) {
     return res.status(400).json({ message: 'All required fields must be provided' });
+  }
 
   const sql = `
     INSERT INTO pending_certificates
@@ -205,7 +243,7 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
   `;
 
-  db.query(sql, [
+  const values = [
     recipientName,
     issueDate,
     numberOfSignatories,
@@ -217,14 +255,49 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), (req, res
     JSON.stringify(approvalSignatories),
     creator_name,
     certificate_type || null
-  ], (err) => {
+  ];
+
+  // Save to DB
+  db.query(sql, values, (err) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Failed to save certificate' });
     }
-    res.status(201).json({ message: 'Certificate saved successfully' });
+
+    // Send Outlook email notifications to all approvers
+    approvalSignatories.forEach((approver) => {
+      if (approver.email) {
+        const mailOptions = {
+          from: process.env.GMAIL_EMAIL, 
+          to: approver.email,
+          subject: 'Certificate Approval Needed',
+          html: `
+            <p>Dear ${approver.name || 'Approver'},</p>
+            <p>You have a pending certificate request that requires your approval.</p>
+            <p><strong>Recipient:</strong> ${recipientName}</p>
+            <p><strong>Certificate Type:</strong> ${certificate_type || 'N/A'}</p>
+            <p><strong>Creator:</strong> ${creator_name}</p>
+            <p>Please log in to the system to approve or reject this request.</p>
+            <br/>
+            <p>Thank you,</p>
+            <p>IT Squarehub Certificate System</p>
+          `
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error(` Failed to send email to ${approver.email}:`, err);
+          } else {
+            console.log(` Email sent to ${approver.email}:`, info.response);
+          }
+        });
+      }
+    });
+
+    res.status(201).json({ message: 'Certificate saved and emails sent successfully' });
   });
 });
+
 
 // Get pending
 app.get('/api/pending-certificates', (req, res) => {
@@ -449,6 +522,32 @@ app.get('/api/approved-certificates', (req, res) => {
     res.json(results);
   });
 });
+
+// Gmail OAuth2 setup
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.GMAIL_CLIENT_ID,
+  process.env.GMAIL_CLIENT_SECRET,
+  'https://developers.google.com/oauthplayground' // redirect URI for refresh token
+);
+
+oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    type: 'OAuth2',
+    user: process.env.GMAIL_EMAIL,
+    clientId: process.env.GMAIL_CLIENT_ID,
+    clientSecret: process.env.GMAIL_CLIENT_SECRET,
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+    accessToken: async () => {
+      const res = await oAuth2Client.getAccessToken();
+      return res.token;
+    }
+  }
+});
+
+
 
 /* START SERVER */
 const PORT = process.env.PORT || 4000;

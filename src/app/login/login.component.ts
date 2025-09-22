@@ -50,16 +50,15 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
         console.log('Login successful:', res);
-        console.log('Login successful:', res);
-          if (res.token) {
-            localStorage.setItem('token', res.token);
-          }
-          if (res.user) {
-            localStorage.setItem('user', JSON.stringify(res.user));
-          }
-          alert(res.message || 'Login successful!');
-            this.router.navigate(['/']);
-        },
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
+        if (res.user) {
+          localStorage.setItem('user', JSON.stringify(res.user));
+        }
+        alert(res.message || 'Login successful!');
+        this.router.navigate(['/']);
+      },
       error: (err) => {
         console.error('Login failed:', err);
         alert(err.message || 'Wrong email or password.');
@@ -83,4 +82,9 @@ export class LoginComponent {
   goToRegister(): void {
     this.router.navigate(['/register']);
   }
+
+goToForgotPassword(event: Event): void {
+  event.preventDefault();
+  this.router.navigate(['/reset-password']);
+}
 }

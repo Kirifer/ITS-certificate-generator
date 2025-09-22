@@ -17,7 +17,7 @@ export class AccountComponent implements OnInit {
   editMode = false;
   showPassword = false;
   imageUrl: string | null = null;
-  selectedFile: File | null = null; // ✅ hold new image file
+  selectedFile: File | null = null; 
 
   constructor(
     private fb: FormBuilder,

@@ -22,6 +22,7 @@ import { InternsCertComponent } from './interns-cert/interns-cert.component';
 import { BestOjtComponent } from './certificate_types/best-ojt/best-ojt.component';
 import { CosSalaryComponent } from './certificate_types/cos-salary/cos-salary.component';
 import { CompanyDocsComponent } from './company-docs/company-docs.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 export const routes: Routes = [
     { path: 'certificates', component: CertificateComponent },
@@ -52,5 +53,6 @@ export const routes: Routes = [
     { path: 'intern-certs', component: InternsCertComponent},
     { path: 'best-projects', component: BestOjtComponent},
     { path: 'cos-salary', component: CosSalaryComponent},
-    {path: 'company-documents', component: CompanyDocsComponent}
+    {path: 'company-documents', component: CompanyDocsComponent},
+    { path: 'reset-password', component: ResetPasswordComponent }
 ];

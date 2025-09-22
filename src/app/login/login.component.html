@@ -34,7 +34,7 @@
             <input type="checkbox" formControlName="remember" />
             <span class="remember-text">Remember me</span>
           </label>
-          <a href="#" class="forgot">Forgot password?</a>
+          <a href="#" (click)="goToForgotPassword($event)">Forgot password?</a>
         </div>
 
         <button type="submit" class="login-btn" [disabled]="loginForm.invalid">Login</button>

@@ -34,7 +34,8 @@ export class AppComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.showSidebar = !event.urlAfterRedirects.includes('/login') && !event.urlAfterRedirects.includes('/register');
+        this.showSidebar = !event.urlAfterRedirects.includes('/login')  && !event.urlAfterRedirects.includes('/register') && !event.urlAfterRedirects.includes('/reset-password');
+
       });
   }
 
@@ -42,6 +43,11 @@ export class AppComponent {
   onMouseMove(event: MouseEvent): void {
     this.updateBackgroundPosition('.nav-bg', event);
     this.updateBackgroundPosition('.login-bg', event);
+  }
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
   }
 
   private updateBackgroundPosition(selector: string, event: MouseEvent): void {
