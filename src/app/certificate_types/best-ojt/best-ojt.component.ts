@@ -38,7 +38,8 @@ export class BestOjtComponent implements AfterViewInit {
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
       projectName: ['', [Validators.required, Validators.maxLength(50)]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
-      batchMonth: ['', Validators.required],
+      batchMonthFrom: ['', Validators.required],
+      batchMonthTo: ['', Validators.required],
       batchYear: [this.currentYear, [Validators.required, Validators.min(2000), Validators.max(2100)]],
       numberOfSignatories: ['2', Validators.required],
       signatory1Name: ['', Validators.required],
@@ -82,6 +83,26 @@ export class BestOjtComponent implements AfterViewInit {
     this.approvalForm = this.fb.group(group);
   }
 
+  formatIssueDate(date: string | null): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = d.getDate();
+    const month = d.toLocaleString('default', { month: 'long' });
+    const year = d.getFullYear();
+
+    const suffix = (day: number) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+
+    return `${day}${suffix(day)} day of ${month} ${year}`;
+  }
+
   async submitApprovalFromPreview() {
     if (this.approvalForm.invalid) {
       this.approvalForm.markAllAsTouched();
@@ -101,6 +122,9 @@ export class BestOjtComponent implements AfterViewInit {
       formData.append('recipientName', cert.recipientName);
       formData.append('projectName', cert.projectName);
       formData.append('issueDate', cert.issueDate);
+      formData.append('batchMonthFrom', cert.batchMonthFrom);
+      formData.append('batchMonthTo', cert.batchMonthTo);
+      formData.append('batchYear', cert.batchYear);
       formData.append('numberOfSignatories', cert.numberOfSignatories);
       formData.append('signatory1Name', cert.signatory1Name);
       formData.append('signatory1Role', cert.signatory1Role);

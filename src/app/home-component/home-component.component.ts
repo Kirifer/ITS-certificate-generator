@@ -23,14 +23,18 @@ export class HomeComponentComponent implements OnInit {
   }
 
   fetchPendingCertificates() {
-    this.http.get<any[]>('http://localhost:4000/api/pending-certificates').subscribe({
-      next: (data) => {
-        this.pendingCertificates = data;
-      },
-      error: (err) => {
-        console.error('Error fetching certificates:', err);
-      }
-    });
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email;
+
+    this.http.get<any[]>(`http://localhost:4000/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
+      .subscribe({
+        next: (data) => {
+          this.pendingCertificates = data;
+        },
+        error: (err) => {
+          console.error('Error fetching certificates:', err);
+        }
+      });
   }
 
   fetchApprovedCertificates() {

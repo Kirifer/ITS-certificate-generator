@@ -30,6 +30,7 @@ export class CompletionComponent {
   ) {
     this.certificateForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
+      pronoun: ['', Validators.required],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       signatory1Name: ['', [Validators.required]],
       signatory1Role: ['', [Validators.required]],

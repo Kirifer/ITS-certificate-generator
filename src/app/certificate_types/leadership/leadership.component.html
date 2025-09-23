@@ -13,6 +13,18 @@
       </div>
 
       <div class="form-group">
+        <label>Pronoun*</label>
+        <select formControlName="pronoun" class="form-control">
+          <option value="" disabled selected>Select pronoun</option>
+          <option [ngValue]="{subject: 'his', object: 'him'}">His</option>
+          <option [ngValue]="{subject: 'her', object: 'her'}">Her</option>
+        </select>
+        <div *ngIf="f['pronoun'].invalid && f['pronoun'].touched" class="error">
+          Pronoun is required.
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Date of Issue*</label>
         <input type="date" formControlName="issueDate" />
         <div *ngIf="f['issueDate'].invalid && f['issueDate'].touched" class="error">
@@ -87,11 +99,11 @@
 
         <div class="certificate-text">
           <p>
-            In acknowledgement of his <span class="iss-date">exceptional leadership qualities, 
+            In acknowledgement of {{ leadershipForm.value.pronoun?.subject || '[his/her]' }} <span class="iss-date">exceptional leadership qualities, 
             demonstrating initiative and effectively guiding others.</span>
           </p>
           <p>
-            This achievement establishes him as the best intern for inspiring teamwork and 
+            This achievement establishes {{ leadershipForm.value.pronoun?.object || '[him/her]' }} as the best intern for inspiring teamwork and 
             driving success within the organization.
           </p>
         </div>
@@ -137,11 +149,11 @@
 
           <div class="certificate-text" style="margin-top: -2em;">
             <p>
-              In acknowledgement of his <span class="iss-date">exceptional leadership qualities, 
+              In acknowledgement of {{ leadershipForm.value.pronoun?.subject || '[his/her]' }} <span class="iss-date">exceptional leadership qualities, 
               demonstrating initiative and effectively guiding others.</span>
             </p>
             <p>
-              This achievement establishes him as the best intern for inspiring teamwork 
+              This achievement establishes {{ leadershipForm.value.pronoun?.object || '[him/her]' }} as the best intern for inspiring teamwork 
               and driving success within the organization.
             </p>
           </div>

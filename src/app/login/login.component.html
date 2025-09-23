@@ -10,8 +10,15 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-box">
         <h3 class="login-title">LOGIN</h3>
 
+        <!-- Email Input -->
         <div class="input-with-icon">
-          <input class="text-black" type="email" formControlName="email" placeholder="Email" aria-label="Email"/>
+          <input
+            class="text-black"
+            type="email"
+            formControlName="email"
+            placeholder="Email"
+            aria-label="Email"
+          />
           <span class="icon"><i class="fa-solid fa-user"></i></span>
           <div *ngIf="email?.invalid && email?.touched" class="error">
             <small *ngIf="email?.errors?.['required']">Email is required.</small>
@@ -19,8 +26,15 @@
           </div>
         </div>
 
+        <!-- Password Input -->
         <div class="input-with-icon">
-          <input class="text-black" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" aria-label="Password"/>
+          <input
+            class="text-black"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Password"
+            aria-label="Password"
+          />
           <span class="icon" (click)="togglePassword()">
             <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
           </span>
@@ -29,16 +43,17 @@
           </div>
         </div>
 
+        <!-- Forgot Password -->
         <div class="form-options">
-          <label>
-            <input type="checkbox" formControlName="remember" />
-            <span class="remember-text">Remember me</span>
-          </label>
           <a href="#" (click)="goToForgotPassword($event)">Forgot password?</a>
         </div>
 
-        <button type="submit" class="login-btn" [disabled]="loginForm.invalid">Login</button>
+        <!-- Login Button -->
+        <button type="submit" class="login-btn" [disabled]="loginForm.invalid">
+          Login
+        </button>
 
+        <!-- Register Link -->
         <p class="register-text transition cursor-pointer">
           Don't have an account? <a (click)="goToRegister()">Register</a>
         </p>
@@ -46,6 +61,7 @@
     </div>
   </div>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-top">
       <div class="footer-info">

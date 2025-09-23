@@ -13,6 +13,18 @@
       </div>
 
       <div class="form-group">
+        <label>Pronoun*</label>
+        <select formControlName="pronoun" class="form-control">
+          <option value="" disabled selected>Select pronoun</option>
+          <option [ngValue]="{subject: 'his', object: 'him'}">His</option>
+          <option [ngValue]="{subject: 'her', object: 'her'}">Her</option>
+        </select>
+        <div *ngIf="f['pronoun'].invalid && f['pronoun'].touched" class="error">
+          Pronoun is required.
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Date of Issue*</label>
         <input type="date" formControlName="issueDate" />
         <div *ngIf="f['issueDate'].invalid && f['issueDate'].touched" class="error">
@@ -87,8 +99,8 @@
 
         <div class="certificate-text">
           <p>
-            In acknowledgement of his <span class="iss-date">exceptional talent to bring joy, humor, and a fun environment to the office with his positive vibes,</span>
-            recognizing him as the best intern who never fails to bring smiles and laughter to everyone.
+            In acknowledgement of {{ certificateForm.value.pronoun?.subject || '[his/her]' }} <span class="iss-date">exceptional talent to bring joy, humor, and a fun environment to the office with his positive vibes,</span>
+            recognizing {{ certificateForm.value.pronoun?.object || '[him/her]' }} as the best intern who never fails to bring smiles and laughter to everyone.
           </p>
         </div>
 
@@ -133,8 +145,8 @@
 
           <div class="certificate-text" style="margin-top: -2em;">
             <p>
-              In acknowledgement of his <span class="iss-date">exceptional talent to bring joy, humor, and a fun environment to the office with his positive vibes,</span>
-              recognizing him as the best intern who never fails to bring smiles and laughter to everyone.
+              In acknowledgement of {{ certificateForm.value.pronoun?.subject || '[his/her]' }} <span class="iss-date">exceptional talent to bring joy, humor, and a fun environment to the office with his positive vibes,</span>
+              recognizing {{ certificateForm.value.pronoun?.object || '[him/her]' }} as the best intern who never fails to bring smiles and laughter to everyone.
             </p>
           </div>
 

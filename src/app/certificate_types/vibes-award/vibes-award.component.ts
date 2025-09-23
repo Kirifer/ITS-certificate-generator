@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-vibes-award',
@@ -30,6 +31,7 @@ export class VibesAwardComponent implements AfterViewInit {
   ) {
     this.certificateForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
+      pronoun: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       numberOfSignatories: ['1', Validators.required],
@@ -122,11 +124,33 @@ export class VibesAwardComponent implements AfterViewInit {
       });
 
       await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
-      alert('Vibes Award request sent successfully!');
+
+      // Send approval emails via EmailJS
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          certificate_type: 'Positive Vibes Award',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',    
+          'template_684vrld',     
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate saved and approval emails sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {
-      console.error('Error submitting vibes award:', err);
-      alert('Failed to send request.');
+      console.error('Error submitting vibes award or sending emails:', err);
+      alert('Failed to submit certificate or send emails.');
     }
   }
 

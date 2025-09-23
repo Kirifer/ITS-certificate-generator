@@ -64,7 +64,7 @@ app.post('/api/auth/register', async (req, res) => {
       [username, email, role, hashedPassword],
       (err) => {
         if (err) return res.status(500).json({ message: 'Database error' });
-        res.status(201).json({ message: 'User registered successfully' });
+        res.status(201).json({ message: 'User  registered successfully' });
       }
     );
   });
@@ -108,7 +108,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
   db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
     if (err) return res.status(500).json({ message: 'Database error' });
-    if (results.length === 0) return res.status(404).json({ message: 'User not found with this email' });
+    if (results.length === 0) return res.status(404).json({ message: 'User  not found with this email' });
 
     try {
       const hashedPassword = await bcrypt.hash(newPassword, 10);

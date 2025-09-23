@@ -15,7 +15,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class AccountComponent implements OnInit {
   profileForm: FormGroup;
   editMode = false;
-  showPassword = false;
   imageUrl: string | null = null;
   selectedFile: File | null = null; 
 
@@ -28,7 +27,6 @@ export class AccountComponent implements OnInit {
       username: [{ value: '', disabled: true }, Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       role: [{ value: '', disabled: true }],
-      password: [{ value: '', disabled: true }],
       newPassword: ['']
     });
   }
@@ -49,8 +47,7 @@ export class AccountComponent implements OnInit {
       this.profileForm.patchValue({
         username: user.username ?? '',
         email: user.email ?? '',
-        role: user.role ?? '',
-        password: user.password ? '*******' : ''
+        role: user.role ?? ''
       });
       this.imageUrl = user.image ? `http://localhost:4000/${user.image}` : null;
     } catch (error) {
@@ -74,25 +71,12 @@ export class AccountComponent implements OnInit {
     }
   }
 
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) return;
-
-    const user = JSON.parse(storedUser);
-    this.profileForm.get('password')?.setValue(
-      this.showPassword ? (user.password ?? '') : '*******'
-    );
-  }
-
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       this.selectedFile = file;
       const reader = new FileReader();
-      reader.onload = () => {
-        this.imageUrl = reader.result as string;
-      };
+      reader.onload = () => this.imageUrl = reader.result as string;
       reader.readAsDataURL(file);
     }
   }
@@ -124,11 +108,7 @@ export class AccountComponent implements OnInit {
     this.http.put('http://localhost:4000/api/auth/update', formData, { headers }).subscribe({
       next: (res: any) => {
         alert('Profile updated successfully!');
-
-        if (res.user) {
-          localStorage.setItem('user', JSON.stringify(res.user));
-        }
-
+        if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
         this.editMode = false;
         this.loadUserInfo();
       },
@@ -146,18 +126,13 @@ export class AccountComponent implements OnInit {
 
   deleteAccount() {
     const token = localStorage.getItem('token');
-    if (!token) {
-      alert('No active session found. Please log in again.');
-      return;
-    }
+    if (!token) return alert('No active session found. Please log in again.');
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.http.delete('http://localhost:4000/api/user/delete', { headers }).subscribe({
       next: () => {
         alert('Your account has been deleted.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        this.router.navigate(['/login']);
+        this.logout();
       },
       error: (err) => {
         console.error('Error deleting account:', err);

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-punctuality',
@@ -120,11 +121,33 @@ export class PunctualityComponent implements AfterViewInit {
       });
 
       await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
-      alert('Certificate request sent successfully!');
+
+      // Send approval emails via EmailJS
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          certificate_type: 'Punctuality Award',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',    
+          'template_684vrld',     
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate saved and approval emails sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {
-      console.error('Error submitting certificate:', err);
-      alert('Failed to send request.');
+      console.error('Error submitting certificate or sending emails:', err);
+      alert('Failed to submit certificate or send emails.');
     }
   }
 

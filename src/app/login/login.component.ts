@@ -24,20 +24,16 @@ export class LoginComponent {
     // Initialize form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      remember: [false]
+      password: ['', Validators.required]
     });
 
-    // Prefill email for remember me function
-    const rememberedUser = localStorage.getItem('rememberedUser');
-    if (rememberedUser) {
-      this.loginForm.patchValue({
-        email: rememberedUser,
-        remember: true
-      });
+    // Redirect if already logged in
+    if (localStorage.getItem('token')) {
+      this.router.navigate(['/']);
     }
   }
 
+  // Form getters for template convenience
   public get email() {
     return this.loginForm.get('email');
   }
@@ -46,10 +42,12 @@ export class LoginComponent {
     return this.loginForm.get('password');
   }
 
+  // Toggle password visibility
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
+  // Login submission
   onSubmit(): void {
     if (!this.loginForm.valid) {
       alert('Please enter valid email and password.');
@@ -57,26 +55,14 @@ export class LoginComponent {
     }
 
     this.loading = true;
+
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
         console.log('Login successful:', res);
 
-        // Choose storage based on remember me function
-        const storage = this.loginForm.value.remember ? localStorage : sessionStorage;
-
-        if (res.token) {
-          storage.setItem('token', res.token);
-        }
-        if (res.user) {
-          storage.setItem('user', JSON.stringify(res.user));
-        }
-
-        // Remember me function
-        if (this.loginForm.value.remember) {
-          localStorage.setItem('rememberedUser', this.loginForm.value.email);
-        } else {
-          localStorage.removeItem('rememberedUser');
-        }
+        // Store token and user info in localStorage for persistent login
+        if (res.token) localStorage.setItem('token', res.token);
+        if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
 
         alert(res.message || 'Login successful!');
         this.router.navigate(['/']);
@@ -91,6 +77,7 @@ export class LoginComponent {
     });
   }
 
+  // Parallax effect for background
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     const navBg = document.querySelector('.login-bg') as HTMLElement | null;
@@ -101,10 +88,12 @@ export class LoginComponent {
     }
   }
 
+  // Navigate to register page
   goToRegister(): void {
     this.router.navigate(['/register']);
   }
 
+  // Navigate to reset-password page
   goToForgotPassword(event: Event): void {
     event.preventDefault();
     this.router.navigate(['/reset-password']);
