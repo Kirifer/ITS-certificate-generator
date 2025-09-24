@@ -41,10 +41,11 @@ export class InternCocComponent implements AfterViewInit {
       signatory1Name: ['', Validators.required],
       signatory1Role: ['', Validators.required],
       signatory2Name: ['', Validators.required],
-      signatory2Role: ['', Validators.required]
+      signatory2Role: ['', Validators.required],
+      issueDate: [new Date().toISOString().split('T')[0], Validators.required]
     });
 
-  this.approvalForm = this.fb.group({});
+    this.approvalForm = this.fb.group({});
   }
 
   ngAfterViewInit() {
@@ -69,17 +70,20 @@ export class InternCocComponent implements AfterViewInit {
   initializeApprovalForm() {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
     this.signatories = Array.from({ length: num }, (_, i) => i);
+
     const group: any = {
       creatorName: ['', Validators.required]
     };
+
     this.signatories.forEach(index => {
       group[`approverName${index}`] = ['', Validators.required];
       group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
     });
+
     this.approvalForm = this.fb.group(group);
   }
 
-    async submitApprovalFromPreview() {
+  async submitApprovalFromPreview() {
     if (this.approvalForm.invalid) {
       this.approvalForm.markAllAsTouched();
       return;
