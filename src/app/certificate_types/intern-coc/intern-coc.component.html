@@ -161,7 +161,7 @@
               <span class="company-name">IT Squarehub</span>
             </div>
             <h1 style="margin-top: -20px;">CERTIFICATE OF COMPLETION</h1>
-            <div class="certificate-text">
+            <div class="certificate-text" style="margin-top: -20px;">
               <p style="text-align:justify">
                 This is to certify that <span class="font-bold">{{ certificateForm.value.recipientName }}</span> 
                 has successfully completed <span class="font-bold">{{ certificateForm.value.numberOfHours }} hours</span> 
@@ -172,14 +172,14 @@
 
               <br><br>
 
-              <p>
+              <p style="margin-top: -20px;">
                 During this internship, {{ certificateForm.value.recipientName }} has demonstrated exceptional dedication, 
                 enthusiasm, and commitment to learning. We hereby acknowledge {{ certificateForm.value.recipientName }} 
                 for {{ certificateForm.value.pronoun }} outstanding performance and contributions to our organization.
               </p>
             </div>
 
-            <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'">
+            <div class="signatures" [class.single-signature]="certificateForm.value.numberOfSignatories === '1'" style="margin-top: -20px;">
               <div>
                 <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
                 <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'Chief Executive Officer' }}</p>

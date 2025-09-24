@@ -8,17 +8,20 @@ import html2canvas from 'html2canvas';
 import emailjs from '@emailjs/browser';
 
 @Component({
-  selector: 'app-exemplary',
+  selector: 'app-intern-coc',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  templateUrl: './exemplary.component.html',
-  styleUrl: './exemplary.component.css'
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule
+  ],
+  templateUrl: './intern-coc.component.html',
+  styleUrl: './intern-coc.component.css'
 })
-export class ExemplaryComponent implements AfterViewInit {
+export class InternCocComponent implements AfterViewInit {
   certificateForm: FormGroup;
   approvalForm: FormGroup;
-  currentYear = new Date().getFullYear();
-  certificateBgImage = '/certificate-bg.png';
+  certificateBgImage = '/coc-bg.png';
   showCertificatePreview = false;
   signatories: number[] = [];
 
@@ -31,13 +34,16 @@ export class ExemplaryComponent implements AfterViewInit {
   ) {
     this.certificateForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.maxLength(50)]],
+      numberOfHours: ['', [Validators.required, Validators.min(1)]],
+      internsPosition: ['', [Validators.required, Validators.maxLength(200)]],
+      internsDepartment: ['', [Validators.required, Validators.maxLength(200)]],
       pronoun: ['', Validators.required],
-      issueDate: [new Date().toISOString().split('T')[0], Validators.required],
       numberOfSignatories: ['2', Validators.required],
       signatory1Name: ['', Validators.required],
       signatory1Role: ['', Validators.required],
       signatory2Name: ['', Validators.required],
-      signatory2Role: ['', Validators.required]
+      signatory2Role: ['', Validators.required],
+      issueDate: [new Date().toISOString().split('T')[0], Validators.required]
     });
 
     this.approvalForm = this.fb.group({});
@@ -65,13 +71,16 @@ export class ExemplaryComponent implements AfterViewInit {
   initializeApprovalForm() {
     const num = parseInt(this.certificateForm.value.numberOfSignatories, 10) || 1;
     this.signatories = Array.from({ length: num }, (_, i) => i);
+
     const group: any = {
       creatorName: ['', Validators.required]
     };
+
     this.signatories.forEach(index => {
       group[`approverName${index}`] = ['', Validators.required];
       group[`approverEmail${index}`] = ['', [Validators.required, Validators.email]];
     });
+
     this.approvalForm = this.fb.group(group);
   }
 
@@ -91,7 +100,7 @@ export class ExemplaryComponent implements AfterViewInit {
       const formData = new FormData();
       const cert = this.certificateForm.value;
 
-      // Certificate Details
+      // Certificate details
       formData.append('recipientName', cert.recipientName);
       formData.append('issueDate', cert.issueDate);
       formData.append('numberOfSignatories', cert.numberOfSignatories);
@@ -101,13 +110,14 @@ export class ExemplaryComponent implements AfterViewInit {
       formData.append('signatory2Role', cert.signatory2Role || '');
       formData.append('certificatePng', blob, 'certificate.png');
       formData.append('creator_name', this.approvalForm.value.creatorName);
-      formData.append('certificate_type', 'Exemplary Award');
+      formData.append('certificate_type', 'Certificate of Completion');
 
       this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
+      // Save to backend
       await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
 
       // Send approval emails via EmailJS
@@ -116,14 +126,14 @@ export class ExemplaryComponent implements AfterViewInit {
           to_name: this.approvalForm.value[`approverName${index}`],
           to_email: this.approvalForm.value[`approverEmail${index}`],
           recipient_name: cert.recipientName,
-          certificate_type: 'Exemplary Award',
+          certificate_type: 'Certificate of Completion',
           creator_name: this.approvalForm.value.creatorName,
           issue_date: cert.issueDate
         };
 
         return emailjs.send(
-          'service_hfi91vc',    
-          'template_684vrld',     
+          'service_hfi91vc',     
+          'template_684vrld',    
           templateParams,
           'UOxJjtpEhb22IFi9x'    
         );
@@ -140,7 +150,7 @@ export class ExemplaryComponent implements AfterViewInit {
   }
 
   goBack() {
-    this.router.navigate(['/intern-certs']);
+    this.router.navigate(['/company-documents']);
   }
 
   openCertificatePreview() {
