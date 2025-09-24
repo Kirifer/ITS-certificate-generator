@@ -115,7 +115,7 @@ export class CosSalaryComponent implements AfterViewInit {
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
-      await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
+      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
       alert('Certificate request sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {

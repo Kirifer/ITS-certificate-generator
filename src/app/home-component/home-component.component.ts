@@ -26,7 +26,7 @@ export class HomeComponentComponent implements OnInit {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userEmail = user.email;
 
-    this.http.get<any[]>(`http://localhost:4000/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
+    this.http.get<any[]>(`https://its-certificate-generator.onrender.com/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
       .subscribe({
         next: (data) => {
           this.pendingCertificates = data;
@@ -38,7 +38,7 @@ export class HomeComponentComponent implements OnInit {
   }
 
   fetchApprovedCertificates() {
-    this.http.get<any[]>('http://localhost:4000/api/approved-certificates')
+    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates')
       .subscribe({
         next: (data) => {
           this.certificates = data.map(cert => ({

@@ -48,7 +48,7 @@ export class PendingComponent implements OnInit {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userEmail = user.email;
 
-    this.http.get<any[]>(`http://localhost:4000/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
+    this.http.get<any[]>(`https://its-certificate-generator.onrender.com/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
       .subscribe({
         next: (data) => {
           this.pendingCertificates = data;
@@ -92,7 +92,7 @@ export class PendingComponent implements OnInit {
           formData.append('certificatePng', blob, 'approved_cert.png');
           formData.append('id', cert.id);
 
-          this.http.post('http://localhost:4000/api/approve-certificate-with-signature', formData)
+          this.http.post('https://its-certificate-generator.onrender.com/api/approve-certificate-with-signature', formData)
             .subscribe({
               next: () => {
                 alert('Certificate approved and saved with signature!');
@@ -115,7 +115,7 @@ export class PendingComponent implements OnInit {
       return;
     }
 
-    this.http.post(`http://localhost:4000/api/pending-certificates/${cert.id}/reject`, {}).subscribe({
+    this.http.post(`https://its-certificate-generator.onrender.com/api/pending-certificates/${cert.id}/reject`, {}).subscribe({
       next: () => {
         this.fetchPendingCertificates();
         this.closeModal();

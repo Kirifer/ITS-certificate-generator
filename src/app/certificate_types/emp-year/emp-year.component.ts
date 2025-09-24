@@ -111,7 +111,7 @@ export class EmpYearComponent implements AfterViewInit {
       });
 
       // Save to backend
-      await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
+      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
 
       // Send approval emails via EmailJS
       const emailPromises = this.signatories.map(index => {

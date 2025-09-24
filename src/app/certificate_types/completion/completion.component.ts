@@ -65,7 +65,7 @@ export class CompletionComponent {
       formData.append('signatory2Role', this.certificateForm.value.signatory2Role);
       formData.append('certificatePng', blob, 'certificate.png');
       
-      await this.http.post('http://localhost:4000/api/pending-certificates', formData).toPromise();
+      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
       alert('Certificate request sent successfully!');
     } catch (err) {
       console.error('Error submitting certificate:', err);

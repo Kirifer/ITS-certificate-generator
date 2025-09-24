@@ -49,7 +49,7 @@ export class AccountComponent implements OnInit {
         email: user.email ?? '',
         role: user.role ?? ''
       });
-      this.imageUrl = user.image ? `http://localhost:4000/${user.image}` : null;
+      this.imageUrl = user.image ? `https://its-certificate-generator.onrender.com/${user.image}` : null;
     } catch (error) {
       console.error('Error parsing user data:', error);
       this.router.navigate(['/login']);
@@ -105,7 +105,7 @@ export class AccountComponent implements OnInit {
       formData.append('image', this.selectedFile);
     }
 
-    this.http.put('http://localhost:4000/api/auth/update', formData, { headers }).subscribe({
+    this.http.put('https://its-certificate-generator.onrender.com/api/auth/update', formData, { headers }).subscribe({
       next: (res: any) => {
         alert('Profile updated successfully!');
         if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
@@ -129,7 +129,7 @@ export class AccountComponent implements OnInit {
     if (!token) return alert('No active session found. Please log in again.');
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.delete('http://localhost:4000/api/user/delete', { headers }).subscribe({
+    this.http.delete('https://its-certificate-generator.onrender.com/api/user/delete', { headers }).subscribe({
       next: () => {
         alert('Your account has been deleted.');
         this.logout();

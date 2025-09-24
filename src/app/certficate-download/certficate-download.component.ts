@@ -36,7 +36,7 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   fetchApprovedCertificates() {
-    this.http.get<any[]>('http://localhost:4000/api/approved-certificates')
+    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates')
       .subscribe({
         next: (data) => {
           this.certificates = data.map(cert => ({
@@ -46,7 +46,7 @@ export class CertificateDownloadComponent implements OnInit {
             certificate: 'Certificate',
             certificateType: cert.certificate_type || 'Certificate',
             status: cert.status,
-            imageUrl: `http://localhost:4000/${cert.png_path}`
+            imageUrl: `https://its-certificate-generator.onrender.com/${cert.png_path}`
           }));
         },
         error: (err) => console.error('Failed to fetch approved certificates', err)
@@ -126,7 +126,7 @@ export class CertificateDownloadComponent implements OnInit {
   removeCertificate(cert: any) {
     if (!confirm(`Are you sure you want to delete certificate for ${cert.name}?`)) return;
 
-    this.http.delete(`http://localhost:4000/api/approved-certificates/${cert.id}`)
+    this.http.delete(`https://its-certificate-generator.onrender.com/api/approved-certificates/${cert.id}`)
       .subscribe({
         next: () => {
           this.certificates = this.certificates.filter(c => c.id !== cert.id);
