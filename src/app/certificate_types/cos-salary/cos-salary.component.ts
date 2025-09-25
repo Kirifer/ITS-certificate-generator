@@ -41,7 +41,8 @@ export class CosSalaryComponent implements AfterViewInit {
       signatory1Name: ['', Validators.required],
       signatory1Role: ['', Validators.required],
       signatory2Name: ['', Validators.required],
-      signatory2Role: ['', Validators.required]
+      signatory2Role: ['', Validators.required],
+      
     });
 
     this.approvalForm = this.fb.group({});

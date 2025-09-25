@@ -23,6 +23,7 @@ import { BestOjtComponent } from './certificate_types/best-ojt/best-ojt.componen
 import { CosSalaryComponent } from './certificate_types/cos-salary/cos-salary.component';
 import { CompanyDocsComponent } from './company-docs/company-docs.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { CoeComponent } from './certificate_types/coe/coe.component';
 
 export const routes: Routes = [
     { path: 'certificates', component: CertificateComponent },
@@ -53,6 +54,7 @@ export const routes: Routes = [
     { path: 'intern-certs', component: InternsCertComponent},
     { path: 'best-projects', component: BestOjtComponent},
     { path: 'cos-salary', component: CosSalaryComponent},
-    {path: 'company-documents', component: CompanyDocsComponent},
-    { path: 'reset-password', component: ResetPasswordComponent }
+    { path: 'company-documents', component: CompanyDocsComponent},
+    { path: 'reset-password', component: ResetPasswordComponent },
+    { path: 'coe-with-salary',component: CoeComponent}
 ];

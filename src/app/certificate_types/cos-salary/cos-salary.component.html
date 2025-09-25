@@ -15,7 +15,7 @@
 
       <div class="form-group">
         <label>Position*</label>
-        <input type="text" formControlName="position">
+        <input type="text" formControlName="position" />
         <div *ngIf="f['position'].invalid && f['position'].touched" class="error">
           Position is required
         </div>
@@ -23,7 +23,7 @@
 
       <div class="form-group">
         <label>Date Hired*</label>
-        <input type="date" formControlName="position">
+        <input type="date" formControlName="dateHired" />
         <div *ngIf="f['dateHired'].invalid && f['dateHired'].touched" class="error">
           Date is required
         </div>
@@ -31,7 +31,7 @@
 
       <div class="form-group">
         <label>Salary in Words*</label>
-        <input type="text" formControlName="salaryWords">
+        <input type="text" formControlName="salaryWords" />
         <div *ngIf="f['salaryWords'].invalid && f['salaryWords'].touched" class="error">
           Salary is required
         </div>
@@ -39,7 +39,7 @@
 
       <div class="form-group">
         <label>Salary in Figures*</label>
-        <input type="number" formControlName="salaryFigures">
+        <input type="number" formControlName="salaryFigures" />
         <div *ngIf="f['salaryFigures'].invalid && f['salaryFigures'].touched" class="error">
           Salary is required
         </div>
@@ -47,15 +47,31 @@
 
       <div class="form-group">
         <label>Reason*</label>
-        <input type="text" formControlName="reason">
+        <input type="text" formControlName="reason" />
         <div *ngIf="f['reason'].invalid && f['reason'].touched" class="error">
           Reason is required
         </div>
       </div>
 
       <div class="form-group">
+        <label>Contact Number*</label>
+        <input type="text" formControlName="contactNumber" />
+        <div *ngIf="f['contactNumber'].invalid && f['contactNumber'].touched" class="error">
+          Contact number is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contact Email*</label>
+        <input type="email" formControlName="contactEmail" />
+        <div *ngIf="f['contactEmail'].invalid && f['contactEmail'].touched" class="error">
+          Valid email is required
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Issue Date*</label>
-        <input type="date" formControlName="issueDate">
+        <input type="date" formControlName="issueDate" />
         <div *ngIf="f['issueDate'].invalid && f['issueDate'].touched" class="error">
           Date is required
         </div>
@@ -63,7 +79,7 @@
 
       <div class="form-group">
         <label>Date Signed*</label>
-        <input type="date" formControlName="dateSigned">
+        <input type="date" formControlName="dateSigned" />
         <div *ngIf="f['dateSigned'].invalid && f['dateSigned'].touched" class="error">
           Date is required
         </div>
@@ -122,6 +138,13 @@
   <div class="preview-panel">
     <div class="certificate" [style.backgroundImage]="'url(/cos-bg.png)'">
       <div class="certificate-content">
+
+        <!-- Logo + Company Name -->
+        <div class="company-header">
+          <img src="/its_logo.png" alt="Company Logo" class="company-logo" />
+          <span class="company-name">IT Squarehub</span>
+        </div>
+
         <h1>CERTIFICATE OF SERVICE</h1>
 
         <div class="cert-meta">
@@ -159,8 +182,12 @@
           </p>
 
           <p style="margin-top:1em; text-align:justify;">
-            For further inquiries, you may reach us at <strong>09218591348</strong>
-            or via email at <a href="mailto:hr&#64;itsquarehub.com" class="email-link">hr&#64;itsquarehub.com</a>
+            For further inquiries, you may reach us at
+            <strong>{{ certificateForm.value.contactNumber }}</strong>
+            or via email at
+            <a [href]="'mailto:' + certificateForm.value.contactEmail" class="email-link">
+              {{ certificateForm.value.contactEmail }}
+            </a>
           </p>
         </div>
 
@@ -195,6 +222,13 @@
       <div class="capture-container">
         <div #modalCertificate class="certificate" [style.backgroundImage]="'url(/cos-bg.png)'">
           <div class="certificate-content">
+
+            <!-- Logo + Company Name -->
+            <div class="company-header">
+              <img src="/its_logo.png" alt="Company Logo" class="company-logo" />
+              <span class="company-name">IT Squarehub</span>
+            </div>
+
             <h1>CERTIFICATE OF SERVICE</h1>
             <div class="cert-meta">
               <p class="issue-date">
@@ -231,8 +265,12 @@
               </p>
 
               <p style="margin-top:1em; text-align:justify;">
-                For further inquiries, you may reach us at <strong>09218591348</strong>
-                or via email at <a href="mailto:hr&#64;itsquarehub.com" class="email-link">hr&#64;itsquarehub.com</a>
+                For further inquiries, you may reach us at
+                <strong>{{ certificateForm.value.contactNumber }}</strong>
+                or via email at
+                <a [href]="'mailto:' + certificateForm.value.contactEmail" class="email-link">
+                  {{ certificateForm.value.contactEmail }}
+                </a>
               </p>
             </div>
 
