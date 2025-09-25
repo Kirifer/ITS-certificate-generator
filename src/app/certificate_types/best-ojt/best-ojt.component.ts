@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';   // ✅ Added EmailJS
 
 @Component({
   selector: 'app-best-ojt',
@@ -119,6 +120,7 @@ export class BestOjtComponent implements AfterViewInit {
       const formData = new FormData();
       const cert = this.certificateForm.value;
 
+      // Certificate details
       formData.append('recipientName', cert.recipientName);
       formData.append('projectName', cert.projectName);
       formData.append('issueDate', cert.issueDate);
@@ -139,12 +141,36 @@ export class BestOjtComponent implements AfterViewInit {
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
+      // Save to backend
       await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
-      alert('Certificate request sent successfully!');
+
+      // Send approval emails via EmailJS
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          project_name: cert.projectName,
+          certificate_type: 'Innovative Project Excellence Award',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',     // EmailJS service ID
+          'template_684vrld',    // template for Best OJT
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    // public key
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate saved and approval emails sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {
-      console.error('Error submitting certificate:', err);
-      alert('Failed to send request.');
+      console.error('Error submitting certificate or sending emails:', err);
+      alert('Failed to submit certificate or send emails.');
     }
   }
 

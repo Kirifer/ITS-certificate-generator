@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-cos-salary',
@@ -42,7 +43,6 @@ export class CosSalaryComponent implements AfterViewInit {
       signatory1Role: ['', Validators.required],
       signatory2Name: ['', Validators.required],
       signatory2Role: ['', Validators.required],
-      
     });
 
     this.approvalForm = this.fb.group({});
@@ -116,8 +116,31 @@ export class CosSalaryComponent implements AfterViewInit {
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
+      // Save to backend
       await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
-      alert('Certificate request sent successfully!');
+
+      // Send approval emails
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          certificate_type: 'Certificate of Service',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',     // EmailJS service ID
+          'template_684vrld',    // EmailJS template ID
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    // EmailJS public key
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate request sent & approval emails sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {
       console.error('Error submitting certificate:', err);

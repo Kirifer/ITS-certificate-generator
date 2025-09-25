@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-coe-salary',
@@ -114,18 +115,40 @@ export class CoeComponent implements AfterViewInit {
       formData.append('creator_name', this.approvalForm.value.creatorName);
       formData.append('certificate_type', 'Certificate of Employment');
 
-      // Approval signatories (JSON)
       this.signatories.forEach(index => {
         formData.append(`approverName${index}`, this.approvalForm.value[`approverName${index}`]);
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
+      // Save to backend
       await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
-      alert('Certificate request sent successfully!');
+
+      // Send approval emails via EmailJS
+      const emailPromises = this.signatories.map(index => {
+        const templateParams = {
+          to_name: this.approvalForm.value[`approverName${index}`],
+          to_email: this.approvalForm.value[`approverEmail${index}`],
+          recipient_name: cert.recipientName,
+          certificate_type: 'Certificate of Employment',
+          creator_name: this.approvalForm.value.creatorName,
+          issue_date: cert.issueDate
+        };
+
+        return emailjs.send(
+          'service_hfi91vc',     // EmailJS service ID
+          'template_684vrld',    // EmailJS template ID
+          templateParams,
+          'UOxJjtpEhb22IFi9x'    // EmailJS public key
+        );
+      });
+
+      await Promise.all(emailPromises);
+
+      alert('Certificate request sent and approval emails sent successfully!');
       this.closeCertificatePreview();
     } catch (err) {
       console.error('Error submitting certificate:', err);
-      alert('Failed to send request.');
+      alert('Failed to send request or emails.');
     }
   }
 
