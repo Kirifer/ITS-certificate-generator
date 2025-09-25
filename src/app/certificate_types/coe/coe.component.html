@@ -277,16 +277,12 @@
               <p style="text-align:justify; margin-top:1em;">
                 {{ certificateForm.value.recipientName }} was an active member of our team during their tenure and contributed
                 to our organization's success. This certificate is issued at the request of the above-mentioned
-                employee for their reference and any other legitimate purposes.
-              </p>
-
-              <span style=" text-align:justify;">
-                For any further inquiries or verification, please feel free to contact us at
+                employee for their reference and any other legitimate purposes.For any further inquiries or verification, please feel free to contact us at
                 <strong>{{ certificateForm.value.companyPhone || 'Company Phone' }}</strong> or via email at
                 <a [href]="'mailto:' + (certificateForm.value.companyEmail || '')" class="email-link">
                   {{ certificateForm.value.companyEmail || 'Company Email' }}
                 </a>.
-            </span>
+              </p>
             </div>
 
             <!-- Signatures with Date Signed in Modal -->
