@@ -211,16 +211,14 @@
           <div>
             <p class="sig-names">{{ certificateForm.value.signatory1Name || 'Signatory 1 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory1Role || 'HR Officer' }}</p>
-            <p class="date-signed">
-              Date signed: {{ certificateForm.value.dateSigned ? (certificateForm.value.dateSigned | date: 'MMMM d, y') : "______________" }}
+            <p class="date-signed">{{ certificateForm.value.dateSigned ? (certificateForm.value.dateSigned | date: 'MMMM d, y') : "______________" }}
             </p>
           </div>
 
           <div *ngIf="certificateForm.value.numberOfSignatories === '2'">
             <p class="sig-names">{{ certificateForm.value.signatory2Name || 'Signatory 2 Name' }}</p>
             <p class="sig-roles">{{ certificateForm.value.signatory2Role || 'Co-Signatory' }}</p>
-            <p class="date-signed">
-              Date signed: {{ certificateForm.value.dateSigned ? (certificateForm.value.dateSigned | date: 'MMMM d, y') : "______________" }}
+            <p class="date-signed">{{ certificateForm.value.dateSigned ? (certificateForm.value.dateSigned | date: 'MMMM d, y') : "______________" }}
             </p>
           </div>
         </div>
