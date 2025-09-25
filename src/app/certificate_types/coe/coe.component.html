@@ -280,13 +280,13 @@
                 employee for their reference and any other legitimate purposes.
               </p>
 
-              <p style="margin-top:1em; text-align:justify;">
+              <span style=" text-align:justify;">
                 For any further inquiries or verification, please feel free to contact us at
                 <strong>{{ certificateForm.value.companyPhone || 'Company Phone' }}</strong> or via email at
                 <a [href]="'mailto:' + (certificateForm.value.companyEmail || '')" class="email-link">
                   {{ certificateForm.value.companyEmail || 'Company Email' }}
                 </a>.
-              </p>
+            </span>
             </div>
 
             <!-- Signatures with Date Signed in Modal -->
