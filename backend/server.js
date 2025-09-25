@@ -15,7 +15,7 @@ const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
 app.use(cors({
-  origin: 'http://localhost:4200',
+  origin: 'https://its-certificate-generator.vercel.app',
   credentials: true
 }));
 app.use(express.json());
