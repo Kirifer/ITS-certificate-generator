@@ -270,6 +270,7 @@
 .re-line {
   font-weight: bold;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .email-link {
@@ -308,3 +309,5 @@
   font-family: "Arial Rounded MT Bold", sans-serif;
   white-space: nowrap;
 }
+
+
