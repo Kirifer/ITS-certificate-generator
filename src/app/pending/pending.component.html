@@ -57,7 +57,7 @@
 
           <div #certificateContainer class="relative w-full max-w-4xl mx-auto">
             <img
-              [src]="'https://its-certificate-generator.onrender.com/' + selectedCert?.png_path"
+              [src]="selectedCert?.png_path || 'assets/placeholder-cert.png'"
               alt="Certificate Preview"
               class="w-full max-w-[2000px] max-h-[2000px] object-contain mx-auto rounded" />
 
@@ -78,7 +78,7 @@
                 alt="Signature"
                 class="w-full h-full object-contain pointer-events-none select-none" />
               <div
-                class="absolute bottom-0 right-0 w-4 h-4 bg-blue-0 cursor-se-resize"
+                class="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 cursor-se-resize"
                 (mousedown)="startResize($event)">
               </div>
             </div>
