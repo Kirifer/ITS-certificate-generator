@@ -78,9 +78,11 @@
                 alt="Signature"
                 class="w-full h-full object-contain pointer-events-none select-none" />
               <div
-                class="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 cursor-se-resize"
-                (mousedown)="startResize($event)">
+                class="absolute bottom-0 right-0 w-4 h-4 bg-transparent cursor-se-resize"
+                (mousedown)="startResize($event)"
+                data-html2canvas-ignore="true">
               </div>
+
             </div>
           </div>
         </div>

@@ -107,7 +107,14 @@ export class PendingComponent implements OnInit {
     html2canvas(this.certificateContainer.nativeElement, {
       allowTaint: true,
       useCORS: true,
-      scale: 2
+      scale: 2,
+      ignoreElements: (element) => {
+        // Skip elements explicitly marked or resizer handles
+        return (
+          element.hasAttribute("data-html2canvas-ignore") ||
+          element.classList.contains("cursor-se-resize")
+        );
+      }
     }).then(canvas => {
       canvas.toBlob(blob => {
         if (!blob || blob.size === 0 || !blob.type.startsWith('image/png')) {
@@ -119,7 +126,7 @@ export class PendingComponent implements OnInit {
         const formData = new FormData();
         formData.append('certificatePng', blob, 'approved_cert.png');
         formData.append('id', cert.id.toString());
-        formData.append('email', this.userEmail);  // Include user email for backend
+        formData.append('email', this.userEmail);
 
         const headers = this.getAuthHeaders();
         this.http.post('https://its-certificate-generator.onrender.com/api/approve-certificate-with-signature', formData, { headers })
@@ -137,7 +144,9 @@ export class PendingComponent implements OnInit {
                 else if (err.status === 500) alert('Failed to upload signed certificate. Check server logs.');
                 else if (err.status === 403) alert('Not authorized to approve this certificate.');
                 else alert(`Approval failed: ${err.error?.message || err.message}`);
-              } else alert('Failed to generate or approve certificate.');
+              } else {
+                alert('Failed to generate or approve certificate.');
+              }
             }
           });
       }, 'image/png');

@@ -46,22 +46,22 @@ export class CertificateDownloadComponent implements OnInit {
     this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates', { headers })
       .subscribe({
         next: (data) => {
-          this.certificates = data.map(cert => ({
-            id: cert.id,
-            name: cert.rname,
-            creator: cert.creator_name,
-            certificate: 'Certificate',
-            certificateType: cert.certificate_type || 'Certificate',
-            status: cert.status,
-            imageUrl: cert.png_path  
-          })).filter(cert => cert.imageUrl);  
+          this.certificates = data
+            .map(cert => ({
+              id: cert.id,
+              name: cert.rname,
+              creator: cert.creator_name,
+              certificateType: cert.certificate_type || 'Certificate',
+              status: cert.status,
+              imageUrl: cert.png_path?.startsWith('http') ? cert.png_path : ''
+            }))
+            .filter(cert => cert.imageUrl);  // Only include valid URLs
         },
         error: (err) => {
-          console.error('Failed to fetch approved certificates (check auth/Cloudinary):', err);
+          console.error('Failed to fetch approved certificates:', err);
           if (err instanceof HttpErrorResponse) {
             if (err.status === 401) {
               alert('Unauthorized - Please log in again.');
-              // Optional: this.router.navigate(['/login']);  // Redirect if needed
             } else {
               alert('Failed to fetch approved certificates.');
             }
@@ -71,9 +71,7 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   openModal(cert: any) {
-    // Cloudinary integration: Validate URL before opening modal
-    if (!cert.imageUrl || !cert.imageUrl.startsWith('http')) {
-      console.warn('Invalid Cloudinary URL for certificate:', cert.id);
+    if (!cert.imageUrl) {
       alert('Cannot preview: Invalid image URL.');
       return;
     }
@@ -92,16 +90,9 @@ export class CertificateDownloadComponent implements OnInit {
       return;
     }
 
-    // Cloudinary integration: Validate URL before loading
-    if (!this.selectedCert.imageUrl.startsWith('http')) {
-      console.error('Invalid Cloudinary URL:', this.selectedCert.imageUrl);
-      alert('Invalid image URL for download.');
-      return;
-    }
-
     const img = new Image();
     img.crossOrigin = 'anonymous';  
-    img.src = this.selectedCert.imageUrl; 
+    img.src = this.selectedCert.imageUrl;
 
     img.onload = () => {
       const imgWidth = img.width;
@@ -110,11 +101,9 @@ export class CertificateDownloadComponent implements OnInit {
 
       if (format === 'pdf') {
         const portraitTypes = ['Certificate of Completion', 'Certificate of Service'];
-        const orientation = portraitTypes.includes(this.selectedCert.certificateType)
-          ? 'portrait'
-          : 'landscape';
-
+        const orientation = portraitTypes.includes(this.selectedCert.certificateType) ? 'portrait' : 'landscape';
         const pdf = new jsPDF(orientation, 'pt', 'letter');
+
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -152,7 +141,7 @@ export class CertificateDownloadComponent implements OnInit {
     };
 
     img.onerror = (err) => {
-      console.error('Failed to load Cloudinary image for export:', err);
+      console.error('Failed to load image for download:', err);
       alert('Failed to load image from cloud storage. Check URL or network.');
     };
   }
@@ -164,18 +153,16 @@ export class CertificateDownloadComponent implements OnInit {
 
     this.http.delete(`https://its-certificate-generator.onrender.com/api/approved-certificates/${cert.id}`, { headers })
       .subscribe({
-        next: (response: any) => {
-          console.log('Deleted Cloudinary URL:', cert.imageUrl);  
+        next: () => {
           this.certificates = this.certificates.filter(c => c.id !== cert.id);
           alert('Certificate deleted successfully from database and cloud storage.');
         },
         error: (err) => {
-          console.error('Failed to delete certificate (check Cloudinary/backend):', err);
+          console.error('Failed to delete certificate:', err);
           if (err instanceof HttpErrorResponse) {
             if (err.status === 401) {
               alert('Unauthorized - Please log in again.');
             } else if (err.status === 500) {
-              console.error('Likely Cloudinary delete error:', err.error?.message || err.message);
               alert('Failed to delete from cloud storage. Check server logs.');
             } else {
               alert(`Delete failed: ${err.error?.message || err.message}`);
