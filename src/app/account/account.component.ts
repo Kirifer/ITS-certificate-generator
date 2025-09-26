@@ -49,7 +49,9 @@ export class AccountComponent implements OnInit {
         email: user.email ?? '',
         role: user.role ?? ''
       });
-      this.imageUrl = user.image ? `https://its-certificate-generator.onrender.com/${user.image}` : null;
+
+      // Use Cloudinary/full URLs directly (no hardcoded backend path)
+      this.imageUrl = user.image ?? null;
     } catch (error) {
       console.error('Error parsing user data:', error);
       this.router.navigate(['/login']);

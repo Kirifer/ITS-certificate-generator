@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
-import emailjs from '@emailjs/browser';   // ✅ Added EmailJS
+import emailjs from '@emailjs/browser';  
 
 @Component({
   selector: 'app-attendance',
@@ -114,8 +114,17 @@ export class AttendanceComponent implements AfterViewInit {
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
-      // Save to backend
-      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
+      // Save to backend (backend uploads to Cloudinary & returns URL)
+      const response: any = await this.http.post(
+        'https://its-certificate-generator.onrender.com/api/pending-certificates',
+        formData
+      ).toPromise();
+
+      if (response?.cloudinary_url) {
+        console.log('Cloudinary URL:', response.cloudinary_url);
+        // Store in localStorage so AccountComponent can use it
+        localStorage.setItem('latestCertificateUrl', response.cloudinary_url);
+      }
 
       // Send approval emails via EmailJS
       const emailPromises = this.signatories.map(index => {
@@ -125,20 +134,21 @@ export class AttendanceComponent implements AfterViewInit {
           recipient_name: cert.recipientName,
           certificate_type: 'Perfect Attendance',
           creator_name: this.approvalForm.value.creatorName,
-          issue_date: cert.issueDate
+          issue_date: cert.issueDate,
+          certificate_url: response?.cloudinary_url || '' 
         };
 
         return emailjs.send(
-          'service_hfi91vc',     
-          'template_684vrld',    
+          'service_hfi91vc',
+          'template_684vrld',
           templateParams,
-          'UOxJjtpEhb22IFi9x'    
+          'UOxJjtpEhb22IFi9x'
         );
       });
 
       await Promise.all(emailPromises);
 
-      alert('Certificate saved and approval emails sent successfully!');
+      alert('Certificate saved to Cloudinary and approval emails sent!');
       this.closeCertificatePreview();
     } catch (err) {
       console.error('Error submitting certificate or sending emails:', err);

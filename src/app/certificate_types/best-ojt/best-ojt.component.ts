@@ -122,11 +122,7 @@ export class BestOjtComponent implements AfterViewInit {
 
       // Certificate details
       formData.append('recipientName', cert.recipientName);
-      formData.append('projectName', cert.projectName);
       formData.append('issueDate', cert.issueDate);
-      formData.append('batchMonthFrom', cert.batchMonthFrom);
-      formData.append('batchMonthTo', cert.batchMonthTo);
-      formData.append('batchYear', cert.batchYear);
       formData.append('numberOfSignatories', cert.numberOfSignatories);
       formData.append('signatory1Name', cert.signatory1Name);
       formData.append('signatory1Role', cert.signatory1Role);

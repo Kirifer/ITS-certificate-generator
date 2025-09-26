@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';  
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import jsPDF from 'jspdf';
@@ -20,14 +20,19 @@ export class CertificateDownloadComponent implements OnInit {
   accessDenied = false;
   userRole: string = '';
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    // Get user info from localStorage
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userRole = (user.role || '').toLowerCase();
 
-    // Allow only certificate_editor or both
     if (this.userRole !== 'certificate_editor' && this.userRole !== 'both') {
       this.accessDenied = true;
     } else {
@@ -36,7 +41,9 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   fetchApprovedCertificates() {
-    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates')
+    const headers = this.getAuthHeaders();
+
+    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates', { headers })
       .subscribe({
         next: (data) => {
           this.certificates = data.map(cert => ({
@@ -46,14 +53,30 @@ export class CertificateDownloadComponent implements OnInit {
             certificate: 'Certificate',
             certificateType: cert.certificate_type || 'Certificate',
             status: cert.status,
-            imageUrl: `https://its-certificate-generator.onrender.com/${cert.png_path}`
-          }));
+            imageUrl: cert.png_path  
+          })).filter(cert => cert.imageUrl);  
         },
-        error: (err) => console.error('Failed to fetch approved certificates', err)
+        error: (err) => {
+          console.error('Failed to fetch approved certificates (check auth/Cloudinary):', err);
+          if (err instanceof HttpErrorResponse) {
+            if (err.status === 401) {
+              alert('Unauthorized - Please log in again.');
+              // Optional: this.router.navigate(['/login']);  // Redirect if needed
+            } else {
+              alert('Failed to fetch approved certificates.');
+            }
+          }
+        }
       });
   }
 
   openModal(cert: any) {
+    // Cloudinary integration: Validate URL before opening modal
+    if (!cert.imageUrl || !cert.imageUrl.startsWith('http')) {
+      console.warn('Invalid Cloudinary URL for certificate:', cert.id);
+      alert('Cannot preview: Invalid image URL.');
+      return;
+    }
     this.selectedCert = cert;
     this.showModal = true;
   }
@@ -64,11 +87,21 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   downloadSelectedCert(format: 'pdf' | 'png' = 'pdf') {
-    if (!this.selectedCert || !this.selectedCert.imageUrl) return;
+    if (!this.selectedCert || !this.selectedCert.imageUrl) {
+      alert('No valid image available for download.');
+      return;
+    }
+
+    // Cloudinary integration: Validate URL before loading
+    if (!this.selectedCert.imageUrl.startsWith('http')) {
+      console.error('Invalid Cloudinary URL:', this.selectedCert.imageUrl);
+      alert('Invalid image URL for download.');
+      return;
+    }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = this.selectedCert.imageUrl;
+    img.crossOrigin = 'anonymous';  
+    img.src = this.selectedCert.imageUrl; 
 
     img.onload = () => {
       const imgWidth = img.width;
@@ -119,22 +152,37 @@ export class CertificateDownloadComponent implements OnInit {
     };
 
     img.onerror = (err) => {
-      console.error('Failed to load image for export', err);
+      console.error('Failed to load Cloudinary image for export:', err);
+      alert('Failed to load image from cloud storage. Check URL or network.');
     };
   }
 
   removeCertificate(cert: any) {
-    if (!confirm(`Are you sure you want to delete certificate for ${cert.name}?`)) return;
+    if (!confirm(`Are you sure you want to delete certificate for ${cert.name}? This will remove it from database and cloud storage.`)) return;
 
-    this.http.delete(`https://its-certificate-generator.onrender.com/api/approved-certificates/${cert.id}`)
+    const headers = this.getAuthHeaders();
+
+    this.http.delete(`https://its-certificate-generator.onrender.com/api/approved-certificates/${cert.id}`, { headers })
       .subscribe({
-        next: () => {
+        next: (response: any) => {
+          console.log('Deleted Cloudinary URL:', cert.imageUrl);  
           this.certificates = this.certificates.filter(c => c.id !== cert.id);
-          alert('Certificate deleted successfully.');
+          alert('Certificate deleted successfully from database and cloud storage.');
         },
         error: (err) => {
-          console.error('Failed to delete certificate:', err);
-          alert('Failed to delete certificate.');
+          console.error('Failed to delete certificate (check Cloudinary/backend):', err);
+          if (err instanceof HttpErrorResponse) {
+            if (err.status === 401) {
+              alert('Unauthorized - Please log in again.');
+            } else if (err.status === 500) {
+              console.error('Likely Cloudinary delete error:', err.error?.message || err.message);
+              alert('Failed to delete from cloud storage. Check server logs.');
+            } else {
+              alert(`Delete failed: ${err.error?.message || err.message}`);
+            }
+          } else {
+            alert('Failed to delete certificate.');
+          }
         }
       });
   }
