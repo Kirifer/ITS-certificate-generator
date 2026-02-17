@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';  
 import { CommonModule } from '@angular/common';
 import html2canvas from 'html2canvas';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-pending',
@@ -59,7 +60,7 @@ export class PendingComponent implements OnInit {
 
   fetchPendingCertificates() {
     const headers = this.getAuthHeaders();
-    const url = `https://its-certificate-generator.onrender.com/api/pending-certificates?email=${encodeURIComponent(this.userEmail)}`;
+    const url = `${environment.SERVER_URL}/pending-certificates?email=${encodeURIComponent(this.userEmail)}`;
 
     this.http.get<any[]>(url, { headers })
       .subscribe({
@@ -129,7 +130,7 @@ export class PendingComponent implements OnInit {
         formData.append('email', this.userEmail);
 
         const headers = this.getAuthHeaders();
-        this.http.post('https://its-certificate-generator.onrender.com/api/approve-certificate-with-signature', formData, { headers })
+        this.http.post(`${environment.SERVER_URL}/approve-certificate-with-signature`, formData, { headers })
           .subscribe({
             next: (response: any) => {
               console.log('Cloudinary approved cert URL:', response?.url);
@@ -163,7 +164,7 @@ export class PendingComponent implements OnInit {
     }
 
     const headers = this.getAuthHeaders();
-    const url = `https://its-certificate-generator.onrender.com/api/pending-certificates/${cert.id}/reject?email=${encodeURIComponent(this.userEmail)}`;
+    const url = `${environment.SERVER_URL}/pending-certificates/${cert.id}/reject?email=${encodeURIComponent(this.userEmail)}`;
 
     this.http.post(url, {}, { headers })
       .subscribe({

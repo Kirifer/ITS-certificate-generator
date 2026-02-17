@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-account',
@@ -107,7 +108,7 @@ export class AccountComponent implements OnInit {
       formData.append('image', this.selectedFile);
     }
 
-    this.http.put('https://its-certificate-generator.onrender.com/api/auth/update', formData, { headers }).subscribe({
+    this.http.put(`${environment.SERVER_URL}/auth/update`, formData, { headers }).subscribe({
       next: (res: any) => {
         alert('Profile updated successfully!');
         if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
@@ -131,7 +132,7 @@ export class AccountComponent implements OnInit {
     if (!token) return alert('No active session found. Please log in again.');
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    this.http.delete('https://its-certificate-generator.onrender.com/api/user/delete', { headers }).subscribe({
+    this.http.delete(`${environment.SERVER_URL}/user/delete`, { headers }).subscribe({
       next: () => {
         alert('Your account has been deleted.');
         this.logout();

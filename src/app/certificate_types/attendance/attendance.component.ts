@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
-import emailjs from '@emailjs/browser';  
+import emailjs from '@emailjs/browser';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-attendance',
@@ -116,7 +117,7 @@ export class AttendanceComponent implements AfterViewInit {
 
       // Save to backend (backend uploads to Cloudinary & returns URL)
       const response: any = await this.http.post(
-        'https://its-certificate-generator.onrender.com/api/pending-certificates',
+        `${environment.SERVER_URL}/pending-certificates`,
         formData
       ).toPromise();
 

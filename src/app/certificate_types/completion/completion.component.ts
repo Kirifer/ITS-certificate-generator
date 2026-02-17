@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-completion',
@@ -65,7 +66,7 @@ export class CompletionComponent {
       formData.append('signatory2Role', this.certificateForm.value.signatory2Role);
       formData.append('certificatePng', blob, 'certificate.png');
       
-      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
+      await this.http.post(`${environment.SERVER_URL}/pending-certificates`, formData).toPromise();
       alert('Certificate request sent successfully!');
     } catch (err) {
       console.error('Error submitting certificate:', err);

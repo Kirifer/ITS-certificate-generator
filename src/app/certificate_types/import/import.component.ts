@@ -6,6 +6,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import html2canvas from 'html2canvas';
 import emailjs from '@emailjs/browser';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-import',
@@ -135,7 +136,7 @@ export class ImportComponent implements AfterViewInit {
         formData.append(`approverEmail${index}`, this.approvalForm.value[`approverEmail${index}`]);
       });
 
-      await this.http.post('https://its-certificate-generator.onrender.com/api/pending-certificates', formData).toPromise();
+      await this.http.post(`${environment.SERVER_URL}/pending-certificates`, formData).toPromise();
 
       // Send approval emails via EmailJS
       const emailPromises = this.signatories.map(index => {

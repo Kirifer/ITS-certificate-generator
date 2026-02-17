@@ -3,7 +3,7 @@ import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angula
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-
+import { environment } from '../environments/environment';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -51,7 +51,7 @@ export class ResetPasswordComponent {
 
     const { email, password } = this.form.value;
 
-    this.http.post('https://its-certificate-generator.onrender.com/api/auth/reset-password', { 
+    this.http.post(`${environment.SERVER_URL}/auth/reset-password`, { 
       email, 
       newPassword: password 
     })

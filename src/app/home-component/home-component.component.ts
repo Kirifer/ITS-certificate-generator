@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-
+import { environment } from '../environments/environment';
 @Component({
   selector: 'app-home-component',
   standalone: true,
@@ -26,7 +26,7 @@ export class HomeComponentComponent implements OnInit {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userEmail = user.email;
 
-    this.http.get<any[]>(`https://its-certificate-generator.onrender.com/api/pending-certificates?email=${encodeURIComponent(userEmail)}`)
+    this.http.get<any[]>(`${environment.SERVER_URL}/pending-certificates?email=${encodeURIComponent(userEmail)}`)
       .subscribe({
         next: (data) => {
           this.pendingCertificates = data;
@@ -38,7 +38,7 @@ export class HomeComponentComponent implements OnInit {
   }
 
   fetchApprovedCertificates() {
-    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates')
+    this.http.get<any[]>(`${environment.SERVER_URL}/approved-certificates`)
       .subscribe({
         next: (data) => {
           this.certificates = data.map(cert => ({

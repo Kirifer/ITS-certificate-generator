@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import jsPDF from 'jspdf';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-certificate-download',
@@ -43,7 +44,7 @@ export class CertificateDownloadComponent implements OnInit {
   fetchApprovedCertificates() {
     const headers = this.getAuthHeaders();
 
-    this.http.get<any[]>('https://its-certificate-generator.onrender.com/api/approved-certificates', { headers })
+    this.http.get<any[]>(`${environment.SERVER_URL}/approved-certificates`, { headers })
       .subscribe({
         next: (data) => {
           this.certificates = data
@@ -151,7 +152,7 @@ export class CertificateDownloadComponent implements OnInit {
 
     const headers = this.getAuthHeaders();
 
-    this.http.delete(`https://its-certificate-generator.onrender.com/api/approved-certificates/${cert.id}`, { headers })
+    this.http.delete(`${environment.SERVER_URL}/approved-certificates/${cert.id}`, { headers })
       .subscribe({
         next: () => {
           this.certificates = this.certificates.filter(c => c.id !== cert.id);
