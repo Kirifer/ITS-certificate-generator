@@ -7,8 +7,11 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const cloudinary = require('cloudinary').v2;
-const streamifier = require('streamifier');
+// const cloudinary = require('cloudinary').v2;
+// const streamifier = require('streamifier');
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const s3 = require("./config/s3");
+const { v4: uuidv4 } = require("uuid");
 
 const app = express();
 
@@ -27,9 +30,10 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-    ca: fs.readFileSync(path.join(__dirname, "ca.pem"))
+    rejectUnauthorized: false
   }
 });
+
 
 db.connect(err => {
   if (err) {
@@ -39,28 +43,43 @@ db.connect(err => {
   console.log('Connected to MySQL');
 });
 
-/* Cloudinary setup */
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// /* Cloudinary setup */
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET
+// });
 
 /* Multer setup - use memory storage */
 const upload = multer({ storage: multer.memoryStorage() });
 
-/* Helper - upload buffer to Cloudinary */
-const uploadToCloudinary = (fileBuffer, folder) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream({ folder }, (error, result) => {
-      if (result) resolve(result);
-      else reject(error);
-    });
-    streamifier.createReadStream(fileBuffer).pipe(stream);
-  });
-};
+// /* Helper - upload buffer to Cloudinary */
+// const uploadToCloudinary = (fileBuffer, folder) => {
+//   return new Promise((resolve, reject) => {
+//     const stream = cloudinary.uploader.upload_stream({ folder }, (error, result) => {
+//       if (result) resolve(result);
+//       else reject(error);
+//     });
+//     streamifier.createReadStream(fileBuffer).pipe(stream);
+//   });
+// };
 
 /* AUTH */
+
+
+const uploadToS3 = async (file, folder) => {
+  const key = `${folder}/${uuidv4()}-${file.originalname}`;
+
+  await s3.send(new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype
+  }));
+
+  return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+};
+
 
 // Register
 app.post('/api/auth/register', async (req, res) => {
@@ -173,9 +192,10 @@ app.put('/api/auth/update', upload.single('image'), async (req, res) => {
     }
 
     if (req.file) {
-      const uploaded = await uploadToCloudinary(req.file.buffer, "profiles");
+     const imageUrl = await uploadToS3(req.file, "profiles");
       updateFields.push('image = ?');
-      values.push(uploaded.secure_url);
+      values.push(imageUrl);
+
     }
 
     if (updateFields.length === 0) return res.status(400).json({ message: 'No fields to update' });
@@ -213,7 +233,7 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), async (re
 
     if (!req.file) return res.status(400).json({ message: 'Certificate PNG is required' });
 
-    const uploaded = await uploadToCloudinary(req.file.buffer, "certificates");
+const imageUrl = await uploadToS3(req.file, "certificates");
 
     const approvalSignatories = [];
     Object.keys(req.body).forEach(key => {
@@ -240,15 +260,19 @@ app.post('/api/pending-certificates', upload.single('certificatePng'), async (re
       signatory1Role,
       signatory2Name || null,
       signatory2Role || null,
-      uploaded.secure_url,
+imageUrl,
+
       JSON.stringify(approvalSignatories),
       creator_name,
       certificate_type || null
     ];
 
     db.query(sql, values, (err) => {
-      if (err) return res.status(500).json({ message: 'Failed to save certificate' });
-      res.status(201).json({ message: 'Certificate saved successfully', url: uploaded.secure_url });
+if (err) {
+  console.error("MYSQL ERROR:", err);
+  return res.status(500).json({ message: err.message });
+}      res.status(201).json({ message: 'Certificate saved successfully', url: imageUrl
+ });
     });
   } catch (err) {
     res.status(500).json({ message: 'Upload failed' });
@@ -305,7 +329,8 @@ app.post('/api/pending-cert_coc', upload.single('certificatePng'), async (req, r
 
     if (!req.file) return res.status(400).json({ message: 'Certificate PNG is required' });
 
-    const uploaded = await uploadToCloudinary(req.file.buffer, "coc");
+    const imageUrl = await uploadToS3(req.file, "coc");
+
 
     const approvalSignatories = [];
     Object.keys(req.body).forEach(key => {
@@ -337,12 +362,14 @@ app.post('/api/pending-cert_coc', upload.single('certificatePng'), async (req, r
       signatory1Role,
       signatory2Name || null,
       signatory2Role || null,
-      uploaded.secure_url,
+      imageUrl,
+
       JSON.stringify(approvalSignatories),
       creator_name
     ], (err) => {
       if (err) return res.status(500).json({ message: 'Failed to save certificate' });
-      res.status(201).json({ message: 'Certificate saved successfully', url: uploaded.secure_url });
+      res.status(201).json({ message: 'Certificate saved successfully', url: imageUrl
+ });
     });
   } catch (err) {
     res.status(500).json({ message: 'Upload failed' });
@@ -362,10 +389,15 @@ app.post('/api/pending-certificates/:id/reject', (req, res) => {
 // Approve certificate
 app.post('/api/approve-certificate-with-signature', upload.single('certificatePng'), async (req, res) => {
   try {
+
+      console.log("==== APPROVE DEBUG ====");
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
     const certId = req.body.id;
     if (!req.file || !certId) return res.status(400).json({ message: 'Missing file or certificate ID' });
 
-    const uploaded = await uploadToCloudinary(req.file.buffer, "approved");
+const imageUrl = await uploadToS3(req.file, "approved");
 
     db.query('SELECT * FROM pending_certificates WHERE id = ?', [certId], (err, results) => {
       if (err || results.length === 0) return res.status(500).json({ message: 'Certificate not found' });
@@ -391,7 +423,8 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
         cert.signatory1_role,
         cert.signatory2_name,
         cert.signatory2_role,
-        uploaded.secure_url,
+        imageUrl,
+
         approvalSignatories,
         cert.certificate_type || 'Employee of the Year'
       ], (err) => {
@@ -399,7 +432,8 @@ app.post('/api/approve-certificate-with-signature', upload.single('certificatePn
 
         db.query('DELETE FROM pending_certificates WHERE id = ?', [certId], (err) => {
           if (err) return res.status(500).json({ message: 'Cleanup failed' });
-          res.json({ message: 'Certificate approved and moved to approved_certificates', url: uploaded.secure_url });
+          res.json({ message: 'Certificate approved and moved to approved_certificates', url: imageUrl
+ });
         });
       });
     });
