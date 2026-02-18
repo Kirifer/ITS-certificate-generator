@@ -1,5 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';  
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import html2canvas from 'html2canvas';
 import { environment } from '../environments/environment';
@@ -9,10 +13,11 @@ import { environment } from '../environments/environment';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './pending.component.html',
-  styleUrl: './pending.component.css'
+  styleUrl: './pending.component.css',
 })
 export class PendingComponent implements OnInit {
-  @ViewChild('certificateContainer', { static: false }) certificateContainer!: ElementRef;
+  @ViewChild('certificateContainer', { static: false })
+  certificateContainer!: ElementRef;
 
   pendingCertificates: any[] = [];
   showModal = false;
@@ -34,7 +39,7 @@ export class PendingComponent implements OnInit {
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : ''
+      Authorization: token ? `Bearer ${token}` : '',
     });
   }
 
@@ -62,28 +67,30 @@ export class PendingComponent implements OnInit {
     const headers = this.getAuthHeaders();
     const url = `${environment.SERVER_URL}/pending-certificates?email=${encodeURIComponent(this.userEmail)}`;
 
-    this.http.get<any[]>(url, { headers })
-      .subscribe({
-        next: (data) => this.pendingCertificates = data,
-        error: (err) => {
-          console.error('Error fetching certificates (check auth/Cloudinary):', err);
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 401) {
-              alert('Unauthorized - Please log in again.');
-            } else {
-              alert('Failed to fetch pending certificates.');
-            }
+    this.http.get<any[]>(url, { headers }).subscribe({
+      next: (data) => (this.pendingCertificates = data),
+      error: (err) => {
+        console.error(
+          'Error fetching certificates (check auth/Cloudinary):',
+          err,
+        );
+        if (err instanceof HttpErrorResponse) {
+          if (err.status === 401) {
+            alert('Unauthorized - Please log in again.');
+          } else {
+            alert('Failed to fetch pending certificates.');
           }
         }
-      });
+      },
+    });
   }
 
   openModal(cert: any) {
     this.selectedCert = { ...cert };
-    if (!this.selectedCert.png_path || !this.selectedCert.png_path.startsWith('http')) {
-      console.warn('Invalid Cloudinary URL for certificate:', cert.id);
-      this.selectedCert.png_path = '';  
-    }
+
+    const key = cert.png_path.split('.amazonaws.com/')[1].split('?')[0];
+    this.selectedCert.png_path = `${environment.SERVER_URL}/proxy-image?key=${encodeURIComponent(key)}`;
+
     this.showModal = true;
     this.signaturePosition = { x: 440, y: 880 };
     this.signatureSize = { width: 160, height: 60 };
@@ -112,49 +119,72 @@ export class PendingComponent implements OnInit {
       ignoreElements: (element) => {
         // Skip elements explicitly marked or resizer handles
         return (
-          element.hasAttribute("data-html2canvas-ignore") ||
-          element.classList.contains("cursor-se-resize")
+          element.hasAttribute('data-html2canvas-ignore') ||
+          element.classList.contains('cursor-se-resize')
         );
-      }
-    }).then(canvas => {
-      canvas.toBlob(blob => {
-        if (!blob || blob.size === 0 || !blob.type.startsWith('image/png')) {
-          console.error('Generated signed PNG blob is invalid');
-          alert('Failed to generate signed certificate image');
-          return;
-        }
+      },
+    })
+      .then((canvas) => {
+        canvas.toBlob((blob) => {
+          if (!blob || blob.size === 0 || !blob.type.startsWith('image/png')) {
+            console.error('Generated signed PNG blob is invalid');
+            alert('Failed to generate signed certificate image');
+            return;
+          }
 
-        const formData = new FormData();
-        formData.append('certificatePng', blob, 'approved_cert.png');
-        formData.append('id', cert.id.toString());
-        formData.append('email', this.userEmail);
+          const formData = new FormData();
+          formData.append('certificatePng', blob, 'approved_cert.png');
+          formData.append('id', cert.id.toString());
+          formData.append('email', this.userEmail);
 
-        const headers = this.getAuthHeaders();
-        this.http.post(`${environment.SERVER_URL}/approve-certificate-with-signature`, formData, { headers })
-          .subscribe({
-            next: (response: any) => {
-              console.log('Cloudinary approved cert URL:', response?.url);
-              alert('Certificate approved and uploaded to cloud storage!');
-              this.fetchPendingCertificates();
-              this.closeModal();
-            },
-            error: (err) => {
-              console.error('Error approving certificate (check Cloudinary/backend):', err);
-              if (err instanceof HttpErrorResponse) {
-                if (err.status === 401) alert('Unauthorized - Please log in again.');
-                else if (err.status === 500) alert('Failed to upload signed certificate. Check server logs.');
-                else if (err.status === 403) alert('Not authorized to approve this certificate.');
-                else alert(`Approval failed: ${err.error?.message || err.message}`);
-              } else {
-                alert('Failed to generate or approve certificate.');
-              }
-            }
-          });
-      }, 'image/png');
-    }).catch(err => {
-      console.error('html2canvas error (loading Cloudinary image failed):', err);
-      alert('Failed to preview certificate for signing. Ensure image loads from cloud.');
-    });
+          const headers = this.getAuthHeaders();
+          this.http
+            .post(
+              `${environment.SERVER_URL}/approve-certificate-with-signature`,
+              formData,
+              { headers },
+            )
+            .subscribe({
+              next: (response: any) => {
+                console.log('Cloudinary approved cert URL:', response?.url);
+                alert('Certificate approved and uploaded to cloud storage!');
+                this.fetchPendingCertificates();
+                this.closeModal();
+              },
+              error: (err) => {
+                console.error(
+                  'Error approving certificate (check Cloudinary/backend):',
+                  err,
+                );
+                if (err instanceof HttpErrorResponse) {
+                  if (err.status === 401)
+                    alert('Unauthorized - Please log in again.');
+                  else if (err.status === 500)
+                    alert(
+                      'Failed to upload signed certificate. Check server logs.',
+                    );
+                  else if (err.status === 403)
+                    alert('Not authorized to approve this certificate.');
+                  else
+                    alert(
+                      `Approval failed: ${err.error?.message || err.message}`,
+                    );
+                } else {
+                  alert('Failed to generate or approve certificate.');
+                }
+              },
+            });
+        }, 'image/png');
+      })
+      .catch((err) => {
+        console.error(
+          'html2canvas error (loading Cloudinary image failed):',
+          err,
+        );
+        alert(
+          'Failed to preview certificate for signing. Ensure image loads from cloud.',
+        );
+      });
   }
 
   rejectCert(cert: any) {
@@ -166,22 +196,22 @@ export class PendingComponent implements OnInit {
     const headers = this.getAuthHeaders();
     const url = `${environment.SERVER_URL}/pending-certificates/${cert.id}/reject?email=${encodeURIComponent(this.userEmail)}`;
 
-    this.http.post(url, {}, { headers })
-      .subscribe({
-        next: () => {
-          alert('Certificate rejected successfully.');
-          this.fetchPendingCertificates();
-          this.closeModal();
-        },
-        error: (err) => {
-          console.error('Rejection failed (check auth):', err);
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 401) alert('Unauthorized - Please log in again.');
-            else if (err.status === 403) alert('Not authorized to reject this certificate.');
-            else alert('Failed to reject certificate.');
-          }
+    this.http.post(url, {}, { headers }).subscribe({
+      next: () => {
+        alert('Certificate rejected successfully.');
+        this.fetchPendingCertificates();
+        this.closeModal();
+      },
+      error: (err) => {
+        console.error('Rejection failed (check auth):', err);
+        if (err instanceof HttpErrorResponse) {
+          if (err.status === 401) alert('Unauthorized - Please log in again.');
+          else if (err.status === 403)
+            alert('Not authorized to reject this certificate.');
+          else alert('Failed to reject certificate.');
         }
-      });
+      },
+    });
   }
 
   onSignatureUpload(event: any) {
@@ -198,7 +228,8 @@ export class PendingComponent implements OnInit {
         img.onload = () => {
           this.signaturePreview = reader.result;
 
-          const certEl = this.certificateContainer.nativeElement.querySelector('img');
+          const certEl =
+            this.certificateContainer.nativeElement.querySelector('img');
           if (certEl) {
             const certWidth = certEl.clientWidth;
             const certHeight = certEl.clientHeight;
@@ -209,7 +240,7 @@ export class PendingComponent implements OnInit {
             this.signatureSize.height = this.signatureSize.width / aspectRatio;
             this.signaturePosition = {
               x: (certWidth - this.signatureSize.width) / 2,
-              y: certHeight - this.signatureSize.height - 40
+              y: certHeight - this.signatureSize.height - 40,
             };
           }
         };
@@ -222,8 +253,12 @@ export class PendingComponent implements OnInit {
   }
 
   startDrag(event: MouseEvent) {
-    if ((event.target as HTMLElement).classList.contains('cursor-se-resize')) return;
-    this.offset = { x: event.clientX - this.signaturePosition.x, y: event.clientY - this.signaturePosition.y };
+    if ((event.target as HTMLElement).classList.contains('cursor-se-resize'))
+      return;
+    this.offset = {
+      x: event.clientX - this.signaturePosition.x,
+      y: event.clientY - this.signaturePosition.y,
+    };
     this.dragging = true;
     document.addEventListener('mousemove', this.onDragMove);
     document.addEventListener('mouseup', this.stopActions);
@@ -248,8 +283,14 @@ export class PendingComponent implements OnInit {
     if (this.resizing) {
       const dx = event.clientX - this.offset.x;
       const dy = event.clientY - this.offset.y;
-      this.signatureSize.width = Math.max(50, this.signatureSize.width + dx * 0.5);
-      this.signatureSize.height = Math.max(20, this.signatureSize.height + dy * 0.5);
+      this.signatureSize.width = Math.max(
+        50,
+        this.signatureSize.width + dx * 0.5,
+      );
+      this.signatureSize.height = Math.max(
+        20,
+        this.signatureSize.height + dy * 0.5,
+      );
       this.offset = { x: event.clientX, y: event.clientY };
     }
   };

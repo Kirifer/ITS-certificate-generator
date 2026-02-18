@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';  
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import jsPDF from 'jspdf';
@@ -10,7 +14,7 @@ import { environment } from '../environments/environment';
   standalone: true,
   imports: [RouterModule, CommonModule],
   templateUrl: './certficate-download.component.html',
-  styleUrls: ['./certficate-download.component.css']
+  styleUrls: ['./certficate-download.component.css'],
 })
 export class CertificateDownloadComponent implements OnInit {
   certificates: any[] = [];
@@ -24,7 +28,7 @@ export class CertificateDownloadComponent implements OnInit {
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : ''
+      Authorization: token ? `Bearer ${token}` : '',
     });
   }
 
@@ -44,19 +48,28 @@ export class CertificateDownloadComponent implements OnInit {
   fetchApprovedCertificates() {
     const headers = this.getAuthHeaders();
 
-    this.http.get<any[]>(`${environment.SERVER_URL}/approved-certificates`, { headers })
+    this.http
+      .get<
+        any[]
+      >(`${environment.SERVER_URL}/approved-certificates`, { headers })
       .subscribe({
         next: (data) => {
           this.certificates = data
-            .map(cert => ({
-              id: cert.id,
-              name: cert.rname,
-              creator: cert.creator_name,
-              certificateType: cert.certificate_type || 'Certificate',
-              status: cert.status,
-              imageUrl: cert.png_path?.startsWith('http') ? cert.png_path : ''
-            }))
-            .filter(cert => cert.imageUrl);  // Only include valid URLs
+            .map((cert) => {
+              const key = cert.png_path
+                .split('.amazonaws.com/')[1]
+                .split('?')[0];
+              const proxyUrl = `${environment.SERVER_URL}/proxy-image?key=${encodeURIComponent(key)}`;
+              return {
+                id: cert.id,
+                name: cert.rname,
+                creator: cert.creator_name,
+                certificateType: cert.certificate_type || 'Certificate',
+                status: cert.status,
+                imageUrl: proxyUrl,
+              };
+            })
+            .filter((cert) => cert.imageUrl);
         },
         error: (err) => {
           console.error('Failed to fetch approved certificates:', err);
@@ -67,7 +80,7 @@ export class CertificateDownloadComponent implements OnInit {
               alert('Failed to fetch approved certificates.');
             }
           }
-        }
+        },
       });
   }
 
@@ -92,7 +105,7 @@ export class CertificateDownloadComponent implements OnInit {
     }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';  
+    img.crossOrigin = 'anonymous';
     img.src = this.selectedCert.imageUrl;
 
     img.onload = () => {
@@ -101,8 +114,15 @@ export class CertificateDownloadComponent implements OnInit {
       const aspectRatio = imgWidth / imgHeight;
 
       if (format === 'pdf') {
-        const portraitTypes = ['Certificate of Completion', 'Certificate of Service'];
-        const orientation = portraitTypes.includes(this.selectedCert.certificateType) ? 'portrait' : 'landscape';
+        const portraitTypes = [
+          'Certificate of Completion',
+          'Certificate of Service',
+        ];
+        const orientation = portraitTypes.includes(
+          this.selectedCert.certificateType,
+        )
+          ? 'portrait'
+          : 'landscape';
         const pdf = new jsPDF(orientation, 'pt', 'letter');
 
         const pageWidth = pdf.internal.pageSize.getWidth();
@@ -148,15 +168,25 @@ export class CertificateDownloadComponent implements OnInit {
   }
 
   removeCertificate(cert: any) {
-    if (!confirm(`Are you sure you want to delete certificate for ${cert.name}? This will remove it from database and cloud storage.`)) return;
+    if (
+      !confirm(
+        `Are you sure you want to delete certificate for ${cert.name}? This will remove it from database and cloud storage.`,
+      )
+    )
+      return;
 
     const headers = this.getAuthHeaders();
 
-    this.http.delete(`${environment.SERVER_URL}/approved-certificates/${cert.id}`, { headers })
+    this.http
+      .delete(`${environment.SERVER_URL}/approved-certificates/${cert.id}`, {
+        headers,
+      })
       .subscribe({
         next: () => {
-          this.certificates = this.certificates.filter(c => c.id !== cert.id);
-          alert('Certificate deleted successfully from database and cloud storage.');
+          this.certificates = this.certificates.filter((c) => c.id !== cert.id);
+          alert(
+            'Certificate deleted successfully from database and cloud storage.',
+          );
         },
         error: (err) => {
           console.error('Failed to delete certificate:', err);
@@ -171,7 +201,7 @@ export class CertificateDownloadComponent implements OnInit {
           } else {
             alert('Failed to delete certificate.');
           }
-        }
+        },
       });
   }
 }
